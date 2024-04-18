@@ -1,0 +1,31 @@
+﻿@model List<UsuarioDetalles>
+
+@{
+    EventoDetalles evento = ViewData["Evento"] as EventoDetalles;
+    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+}
+
+<form method="post" asp-controller="ArtistasEvento" asp-action="_AddArtistaToEvento">
+    <input name="idevento" value="@evento.Id" type="hidden" />
+    <div class="input-group mb-3">
+        <select name="idartista" class="form-select" id="single-select-field">
+            <option value="" d >Selecciona un artista</option>
+            @foreach (var artista in Model)
+            {
+                <option value="@artista.UsuarioID" style="color:black">@artista.NombreUsuario</option>
+            }
+        </select>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Añadir</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    $('#single-select-field').select2({
+        theme: "bootstrap-5",
+        width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+        placeholder: "Selecciona un Artista"
+    });
+</script>
+

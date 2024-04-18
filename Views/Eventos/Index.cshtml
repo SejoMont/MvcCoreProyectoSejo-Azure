@@ -1,0 +1,149 @@
+﻿@model IEnumerable<MvcCoreProyectoSejo.Models.EventoDetalles>
+@{
+    ViewData["Title"] = "Index";
+    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+    UsuarioDetalles user = ViewData["UsuarioDetalle"] as UsuarioDetalles;
+    List<Provincia> provincias = ViewData["Provincias"] as List<Provincia>;
+    List<TipoEvento> tiposEvento = ViewData["TipoEventos"] as List<TipoEvento>;
+
+    // Variables para los valores de los filtros
+    var nombreFilter = Context.Request.Query["nombre"];
+    var fechaInicioFilter = Context.Request.Query["fechaInicio"];
+    var provinciaFilter = Context.Request.Query["provincia"];
+    var tipoFilter = Context.Request.Query["tipo"];
+    var precioMayorQueFilter = Context.Request.Query["precioMayorQue"];
+    var precioMenorQueFilter = Context.Request.Query["precioMenorQue"];
+}
+
+<!-- Formulario de búsqueda -->
+<div class="filtros">
+    <div class="container mt-4" style="padding-bottom: 20px">
+        <form id="searchForm" asp-controller="Eventos" asp-action="Index" method="get" class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <label for="nombre" class="visually-hidden">Nombre del Evento</label>
+                <input type="text" class="form-control" name="nombre" placeholder="Nombre del Evento" value="@nombreFilter">
+            </div>
+            <div class="col-md-2">
+                <label for="fechaInicio" class="visually-hidden">Fecha de Inicio</label>
+                <input type="date" class="form-control" name="fechaInicio" value="@fechaInicioFilter">
+            </div>
+            <div class="col-md-2">
+                <label for="provincia" class="visually-hidden">Provincia</label>
+                <select class="form-control" name="provincia">
+                    <option value="">- Todas las Provincias -</option>
+                    @foreach (var prov in provincias)
+                    {
+                        <option value="@prov.Nombre" selected="@(prov.Nombre == provinciaFilter)">@prov.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="tipo" class="visually-hidden">Tipo de Evento</label>
+                <select class="form-control" name="tipo">
+                    <option value="">- Todos los Eventos -</option>
+                    @foreach (var tipo in tiposEvento)
+                    {
+                        <option value="@tipo.Nombre" selected="@(tipo.Nombre == tipoFilter)">@tipo.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-1">
+                <label for="precioMayorQue" class="visually-hidden">Precio Mayor que</label>
+                <input type="number" class="form-control" name="precioMayorQue" placeholder="€ Min" value="@precioMayorQueFilter">
+            </div>
+            <div class="col-md-1">
+                <label for="precioMenorQue" class="visually-hidden">Precio Menor que</label>
+                <input type="number" class="form-control" name="precioMenorQue" placeholder="€ Max" value="@precioMenorQueFilter">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn" style="background-color:#35FF57; color: black">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr />
+
+
+
+@if (usuario != null && usuario.RolID == 3)
+{
+    <p>
+        <a asp-action="CrearEvento" class="btn btn-exitz">Create New</a>
+    </p>
+}
+
+<!-- Resultados de búsqueda -->
+
+<div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
+    @foreach (var evento in Model)
+    {
+        <a asp-action="Details" asp-controller="Eventos" asp-route-id="@evento.Id">
+            <div class="col mb-4 card-container">
+                <div class="card h-100 position-relative">
+                    <img src="@HelperPathProvider.MapUrlPath(evento.Imagen, Folders.Eventos)" class="card-img-top" style="height:300px; object-fit: cover;">
+                    <div class="card-body" style="top: -40px; position: relative;">
+                        <h4 class="card-title card-title-overlay titulo" style="top: 15px">@evento.NombreEvento</h4>
+                        <div class="card-text" style="height:20px">
+                            <label style="color: #35FF57">@evento.Fecha.ToString("ddd, dd MMM", new System.Globalization.CultureInfo("es-ES")) - @evento.Provincia</label>
+                            <br />
+                            <label>@evento.Recinto - @evento.TipoEvento</label>
+                            <br />
+                            <label>@evento.Precio €</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </a>
+    }
+</div>
+<nav aria-label="Page navigation" >
+    <ul class="pagination justify-content-center">
+        @if (ViewBag.PageNumber > 1)
+        {
+            <li class="page-item" >
+                <a class="page-link" href="?page=1" aria-label="First" style="background-color:#1C1C21; color: white;">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page=@(ViewBag.PageNumber - 1)" aria-label="Previous" style="background-color:#1C1C21; color: white;">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        }
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")" style="border: none;">
+                <a class="page-link" href="?page=@i&@ViewBag.FiltersQueryString" style="background-color:@(i == ViewBag.PageNumber ? "#35FF57" : "#1C1C21"); color: @(i == ViewBag.PageNumber ? "black" : "white"); @(i == ViewBag.PageNumber ? "font-weight: bold;" : "")">@i</a>
+            </li>
+        }
+        @if (ViewBag.PageNumber < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" href="?page=@(ViewBag.PageNumber + 1)" aria-label="Next" style="background-color:#1C1C21; color: white;">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page=@ViewBag.TotalPages" aria-label="Last" style="background-color:#1C1C21; color: white;">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        }
+    </ul>
+</nav>
+
+@section Scripts {
+    <script>
+        // Obtener el formulario
+        var form = document.getElementById("searchForm");
+
+        // Agregar un listener al formulario para detectar cambios en los filtros
+        form.addEventListener("change", function () {
+            // Enviar el formulario automáticamente al detectar cambios
+            form.submit();
+        });
+    </script>
+}

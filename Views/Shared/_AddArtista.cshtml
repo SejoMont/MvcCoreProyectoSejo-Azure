@@ -1,0 +1,17 @@
+﻿@model MvcCoreProyectoSejo.Models.Artista
+
+<form asp-action="CrearArtista" asp-controller="ArtistasEvento" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="IdEvento" />
+
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre del Artista</label>
+        <input type="text" id="nombre" asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre del artista" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="foto" class="form-label">Foto del Artista</label>
+        <input type="file" id="foto" asp-for="Foto" class="form-control" accept="image/*" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Añadir Artista</button>
+</form>

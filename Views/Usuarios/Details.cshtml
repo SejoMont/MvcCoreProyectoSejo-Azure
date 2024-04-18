@@ -1,0 +1,80 @@
+﻿@model MvcCoreProyectoSejo.Models.UsuarioDetalles
+
+@{
+    ViewData["Title"] = "Detalles del Usuario";
+    Layout = "_Layout";
+    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div>
+                <img src="@HelperPathProvider.MapUrlPath(Model.FotoPerfil, Folders.Usuarios)" class="card-img-top img-fluid square-image" style="border-radius: 10px;">
+
+                <div class="card-body">
+                    <p class="card-text">@Model.Descripcion</p>
+                </div>
+                <ul class="list-group list-group-flush" style="background: none" >
+                    
+                    @if (usuario != null)
+                    {
+                        if (usuario.UsuarioID == Model.UsuarioID)
+                        {
+                            <li style="background: none; color: white" class="list-group-item lista"><strong>Correo:</strong> @Model.Correo</li>
+                            <li style="background: none; color: white" class="list-group-item lista"><strong>Teléfono:</strong> @Model.Telefono</li>
+                            <li style="background: none; color: white" class="list-group-item lista"><strong>Provincia:</strong> @Model.NombreProvincia</li>
+                            <li style="background: none; color: white" class="list-group-item lista"><strong>Rol:</strong> @Model.NombreRol</li>
+                        }
+                    }
+
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h1 class="display-4" style="color: #35FF57">@Model.NombreUsuario</h1>
+
+            <div class="list-group" style="background-color: rgba(20, 20, 20, 0.3); padding: 10px; border-radius: 10px;">
+                <!-- Eventos pasados -->
+                <h4 class="mt-3">Eventos Pasados</h4>
+                @foreach (var evento in (List<EventoDetalles>)ViewData["EventosPasados"])
+                {
+                    <a href="@Url.Action("Details", "Eventos", new { id = evento.Id })" class="list-group-item list-group-item-action" style="background-color:#1C1C21; color:white; border-radius: 10px">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Imagen a la izquierda -->
+                            <img src="@HelperPathProvider.MapUrlPath(evento.Imagen, Folders.Eventos)" class="card-img-top" style="height:100px; object-fit: cover; width:100px; border-radius: 7px">
+                            <!-- Contenedor del contenido de texto -->
+                            <div class="flex-grow-1 ml-3" style="margin-left: 20px">
+                                <h5 class="mb-1">@evento.NombreEvento</h5>
+                                <small><label style="color: #35FF57">@evento.Fecha.ToString("ddd, dd MMM", new System.Globalization.CultureInfo("es-ES")) - @evento.Provincia</label></small><br />
+                                <small>Precio: @evento.Precio €</small>
+                            </div>
+                        </div>
+                    </a>
+                    <br />
+                }
+            </div>
+            <br />
+            <div class="list-group" style="background-color: rgba(20, 20, 20, 0.3); padding: 10px; border-radius: 10px">
+                <!-- Próximos eventos -->
+                <h4 class="mt-3">Próximos Eventos</h4>
+                @foreach (var evento in (List<EventoDetalles>)ViewData["EventosProximos"])
+                {
+                    <a href="@Url.Action("Details", "Eventos", new { id = evento.Id })" class="list-group-item list-group-item-action" style="background-color:#1C1C21; color:white; border-radius: 10px">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Imagen a la izquierda -->
+                            <img src="@HelperPathProvider.MapUrlPath(evento.Imagen, Folders.Eventos)" class="card-img-top" style="height:100px; object-fit: cover; width:100px; border-radius: 7px">
+                            <!-- Contenedor del contenido de texto -->
+                            <div class="flex-grow-1 ml-3" style="margin-left: 20px">
+                                <h5 class="mb-1">@evento.NombreEvento</h5>
+                                <small><label style="color: #35FF57">@evento.Fecha.ToString("ddd, dd MMM", new System.Globalization.CultureInfo("es-ES")) - @evento.Provincia</label></small><br />
+                                <small>Precio: @evento.Precio €</small>
+                            </div>
+                        </div>
+                    </a>
+                    <br />
+                }
+            </div>
+        </div>
+    </div>
+</div>

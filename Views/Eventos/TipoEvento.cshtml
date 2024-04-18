@@ -1,0 +1,38 @@
+﻿@model IEnumerable<MvcCoreProyectoSejo.Models.EventoDetalles>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<h2>Tipos de Eventos</h2>
+<ul>
+    @foreach (var tipoEvento in ViewData["TipoEventos"] as List<TipoEvento>)
+    {
+        <li>
+            <a asp-controller="Eventos" asp-action="TipoEvento" asp-route-tipo="@tipoEvento.Nombre">@tipoEvento.Nombre</a>
+        </li>
+    }
+</ul>
+<div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
+@foreach (var evento in Model)
+{
+    <a asp-action="Details" asp-controller="Eventos" asp-route-id="@evento.Id">
+        <div class="col mb-4">
+            <div class="card h-100">
+                <img src="@HelperPathProvider.MapUrlPath(evento.Imagen, Folders.Eventos)" class="card-img-top" style="height:300px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">@evento.NombreEvento</h5>
+                    <p class="card-text">@evento.Descripcion</p>
+                    <p class="card-text"><strong>Precio:</strong> @evento.Precio €</p>
+                </div>
+            </div>
+        </div>
+    </a>
+}
+</div>
+

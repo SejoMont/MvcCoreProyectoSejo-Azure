@@ -1,0 +1,227 @@
+﻿@model MvcCoreProyectoSejo.Models.EventoDetalles
+
+@{
+    ViewData["Title"] = "Detalles del Evento";
+    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+    List<ArtistaDetalles> artistas = ViewData["ArtistasUsers"] as List<ArtistaDetalles>;
+    List<Artista> artistasEventos = ViewData["ArtistasEvento"] as List<Artista>;
+}
+
+<div class="container mt-8" style="width: 90%">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="">
+                <img src="@HelperPathProvider.MapUrlPath(Model.Imagen, Folders.Eventos)" class="card-img-top img-fluid" style="border-radius: 10px" alt="Imagen del Evento">
+                <br /><br />
+                <h5>Precio Entrada: <label style="color: #35FF57">@Model.Precio €</label> </h5>
+                @if (Model.Fecha < DateTime.Now)
+                {
+                    <button disabled class="btn btn-outline-secondary" style="width: 100%">Evento finalizado</button>
+                }
+                else if (usuario == null)
+                {
+                    <a asp-action="Login" asp-controller="Usuarios" class="btn btn-outline-danger btn-block" style="width: 100%">Inicia sesión para comprar entradas</a>
+                }
+                else if (Model.Aforo > Model.EntradasVendidas)
+                {
+                    <a asp-action="Comprar" asp-route-idevento="@Model.Id" class="btn btn-outline-success" style="width: 100%">Comprar Entradas</a>
+                }
+                else
+                {
+                    <button disabled class="btn btn-outline-danger btn-block" style="width: 100%">AGOTADO</button>
+                }
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="mt-6">
+
+                <h1>@Model.NombreEvento</h1>
+                <h5>@Model.TipoEvento</h5>
+                <h4 style="color: #35FF57">@Model.Fecha.ToString("ddd, dd MMM", new System.Globalization.CultureInfo("es-ES")) - @Model.Provincia</h4>
+                <a asp-controller="Usuarios" asp-action="Details" asp-route-iduser="@Model.RecintoId" class="link"><h4>@Model.Recinto</h4></a>
+                <h5>@Model.Ubicacion</h5>
+                <br />
+                <p><strong>Descripción: </strong>@Model.Descripcion</p>
+                <br />
+            </div>
+            <div class="mt-3">
+                @if (artistas.Count() != 0 && artistasEventos.Count() != 0)
+                {
+                    <h3>Cartel</h3>
+                }
+
+                @if (usuario != null && usuario.UsuarioID == Model.RecintoId)
+                {
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalAddArtista">¿No está el artista que buscas?, ¡Añádelo!</a>
+                    <div id="addArtista"></div>
+
+
+                    @if (TempData["ERROR"] != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @TempData["ERROR"]
+                        </div>
+                    }
+                }
+
+                @if (artistas.Count() == 0 && artistasEventos.Count() == 0)
+                {
+                }
+                else
+                {
+
+                    <ul class="list-group">
+                        @foreach (var artista in (List<ArtistaDetalles>)ViewData["ArtistasUsers"])
+                        {
+                            <a asp-controller="Usuarios" asp-action="Details" asp-route-iduser="@artista.UsuarioID">
+                            <li class="list-group-item" style="background: none; border: none">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <img src="@HelperPathProvider.MapUrlPath(artista.FotoPerfil, Folders.Usuarios)" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
+                                        <span style="color: white; font-size: 20px" class="ml-3"> &nbsp;  @artista.NombreUsuario</span>
+                                    </div>
+                                </div>
+                            </li>
+                            </a>
+                        }
+                        @foreach (var artista in (List<Artista>)ViewData["ArtistasEvento"])
+                        {
+                            <li class="list-group-item" style="background: none; border: none">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <img src="@HelperPathProvider.MapUrlPath(artista.Foto, Folders.Usuarios)" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
+                                        <span style="color: white; font-size: 20px" class="ml-3"> &nbsp;  @artista.Nombre</span>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Fecha < DateTime.Now)
+    {
+        if (usuario != null)
+        {
+            <br />
+
+            <br />
+            
+            <br />
+
+            <br />
+            <form asp-action="AddComentario" method="post">
+                <input type="hidden" name="userId" value="@usuario.UsuarioID" />
+                <input type="hidden" name="eventoId" value="@Model.Id" />
+                <div class="form-group">
+                    <label for="texto"><h5>Escribe un Comentario:</h5></label>
+                    <div class="form-group">
+                        <div class="rating">
+                            <input type="radio" id="star1" name="puntuacion" value="1" /><label for="star1" title="1 estrella">&#9733;</label>
+                            <input type="radio" id="star2" name="puntuacion" value="2" /><label for="star2" title="2 estrellas">&#9733;</label>
+                            <input type="radio" id="star3" name="puntuacion" value="3" /><label for="star3" title="3 estrellas">&#9733;</label>
+                            <input type="radio" id="star4" name="puntuacion" value="4" /><label for="star4" title="4 estrellas">&#9733;</label>
+                            <input type="radio" id="star5" name="puntuacion" value="5" /><label for="star5" title="5 estrellas">&#9733;</label>
+                        </div>
+                    </div>
+                    <textarea class="form-control" rows="3" id="texto" name="texto"></textarea>
+                </div>
+                <br />
+                <button type="submit" class="btn btn-exitz">Agregar Comentario</button>
+                <br />
+                <br />
+            </form>
+
+
+        }
+        <div class="mt-3">
+            <h5>Comentarios</h5>
+            <div class="list-group">
+                @foreach (var comentario in (List<ComentarioDetalles>)ViewData["Comentarios"])
+                {
+                    <div class="list-group-item">
+                        <p>@comentario.Texto</p>
+                        <small class="text-muted">Por @comentario.NombreUsuario - @comentario.FechaCreacion</small>
+                        <div class="rating">
+                            @if (comentario.Puntuacion == 0)
+                            {
+                                for (int i = 1; i < 6; i++)
+                                {
+                                    <i class="fa-sharp fa-regular fa-star"></i>
+                                }
+                            }
+                            else
+                            {
+                                for (int i = 1; i < 6; i++)
+                                {
+                                    if (i < comentario.Puntuacion)
+                                    {
+                                        <i class="fa-sharp fa-regular fa-star"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-sharp fa-solid fa-star"></i>
+                                    }
+                                }
+                            }
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Estilos {
+    <style>
+        .content-wrapper {
+            position: relative;
+            z-index: 1; /* Asegura que el contenido esté sobre el fondo */
+            padding-top: 20px; /* Ajusta el espacio para el header */
+            padding-bottom: 20px; /* Ajusta el espacio para el footer */
+        }
+
+            .content-wrapper::before {
+                content: "";
+                position: fixed; /* Fija el fondo en la ventana gráfica */
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 1)), url('@HelperPathProvider.MapUrlPath(Model.Imagen, Folders.Eventos)');
+                background-size: cover; /* Ajusta la imagen de fondo para cubrir todo el contenedor */
+                filter: blur(20px) brightness(0.6); /* Aplica un filtro de desenfoque a la imagen */
+                z-index: -1; /* Asegura que el fondo esté detrás del contenido */
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $.get('@Url.Action("_AddArtistaToEvento", "ArtistasEvento")', { idevento: @Model.Id}, function (data) {
+            $('#addArtista').html(data);
+        });
+
+    </script>
+
+}
+
+@section Modal {
+    <div class="modal fade" id="modalAddArtista" aria-labelledby="modalAddArtistaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content custom-modal-bg">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAddArtistaLabel">Añadir Nuevo Artista</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @await Html.PartialAsync("_AddArtista", new MvcCoreProyectoSejo.Models.Artista { IdEvento = Model.Id })
+
+                </div>
+            </div>
+        </div>
+    </div>
+}

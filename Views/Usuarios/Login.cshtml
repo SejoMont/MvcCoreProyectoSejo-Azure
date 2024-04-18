@@ -1,0 +1,30 @@
+﻿<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center text-black" style="background: #35FF57">
+                    <h3>Iniciar Sesión</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" name="correo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <input type="hidden" value="1" name="rol">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-exitz">Iniciar Sesión</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-muted text-center">
+                    ¿No tienes una cuenta? <a href="@Url.Action("Registro", "Usuarios")" class="link">Regístrate aquí</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+﻿@model List<EntradaDetalles>
+
+@{
+    ViewData["Title"] = "Ver Entradas";
+}
+<div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
+    @foreach (var entrada in Model)
+    {
+        <a asp-action="Details" asp-controller="Eventos" asp-route-id="@entrada.EventoID">
+            <div class="col mb-4">
+                <div class="card h-100">
+                    <img src="@HelperPathProvider.MapUrlPath(entrada.Imagen, Folders.Eventos)" class="card-img-top" style="height:300px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@entrada.NombreEvento</h5>
+                        <p class="card-text"><strong>Ciudad:</strong> @entrada.Provincia</p>
+                        <p class="card-text"><strong>Correo:</strong> @entrada.Correo</p>
+                        <p class="card-text"><strong>Nombre:</strong> @entrada.Nombre</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    }
+</div>
+

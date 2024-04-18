@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+/*@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,636;1,636&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+*/
+html {
+    font-size: 14px;
+}
+
+.bg-black-opacity {
+    background-color: rgba(0, 0, 0, 0.7); /* Ajusta el último valor para cambiar la opacidad */
+}
+
+.navbar .container-fluid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Estilos para el toggler en pantallas pequeñas */
+.navbar-toggler {
+    order: 2; /* Asegura que el toggler siempre esté a la derecha */
+}
+
+.navbar-brand {
+    order: 1; /* Asegura que el logo siempre esté a la izquierda */
+}
+
+/* Ajusta este según necesites para el contenido del navbar que se colapsa */
+.collapse.navbar-collapse {
+    order: 3;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.navbar {
+    z-index: 100; /* Asegura que esté encima de otros elementos */
+}
+
+/* Estilos para el desplegable */
+.navbar-nav .dropdown-menu {
+    background-color: black;
+}
+
+.navbar-nav .dropdown-item {
+    color: white !important;
+}
+
+    .navbar-nav .dropdown-item:hover {
+        color: #35FF57 !important;
+        background-color: black;
+    }
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+.btn-exitz {
+    background-color: #35FF57;
+    color: black;
+}
+
+    .btn-exitz:hover * {
+        background-color: #23b03a;
+    }
+
+body {
+    margin-top: 3vw; /* Altura del navbar */
+    padding-top: 2.5rem; /* Ajusta según sea necesario */
+    font-family: "Rubik", sans-serif;
+    color: whitesmoke;
+    margin-bottom: 180px;
+    background-color: #020202;
+    border: none;
+}
+
+a {
+    text-decoration: none;
+    color: whitesmoke;
+}
+
+    a:hover * {
+        filter: brightness(0.95);
+    }
+
+.link {
+    color: white;
+}
+.link:hover {
+    color: #35FF57
+}
+
+.custom-modal-bg * {
+    background-color: #1C1C21;
+}
+
+.btn-close {
+    background-color: white;
+    border-radius: 50%; /* Hacer el botón de cerrar redondo */
+    padding: 0.375rem 0.375rem; /* Ajustar el padding para que sea más grande */
+}
+
+.custom-modal-bg {
+    background-color: #1C1C21; /* Color de fondo del modal */
+}
+
+.modal-body form {
+    padding: 0 30px 20px
+}
+.modal-backdrop.show {
+    z-index: 1040; /* Asegúrate de que está justo debajo del modal */
+}
+
+.modal {
+    z-index: 1050 !important
+}
+
+.agotado {
+    filter: saturate(0) brightness(0.4);
+}
+
+    .agotado:hover {
+        filter: saturate(0) brightness(0.35);
+    }
+
+.filtros, .card {
+    background-color: #1C1C21;
+    color: whitesmoke;
+    border-radius: 7px; /* Ajusta el valor según lo redondeado que desees los bordes */
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5); /* Ajusta los valores según el tamaño y color de la sombra */
+}
+
+.card {
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+    .card img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 7px;
+        object-fit: cover;
+        -webkit-mask-image: linear-gradient(to top, transparent 1%, black 50%);
+        mask-image: linear-gradient(to top, transparent 1%, black 50%);
+        
+    }
+
+/* Ocultar los radios */
+.rating input[type="radio"] {
+    display: none;
+}
+
+/* Usar flexbox para invertir el orden de las estrellas */
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+    /* Estilos para las estrellas */
+    .rating label {
+        font-size: 2em;
+        color: #ccc;
+        cursor: pointer;
+    }
+
+        .rating label:hover,
+        .rating label:hover ~ label,
+        .rating input[type="radio"]:checked ~ label {
+            color: #35FF57;
+        }
+
+.square-image {
+    width: 100%; /* Establece el ancho al 100% */
+    height: auto; /* Permite que la altura se ajuste automáticamente para mantener la proporción */
+    aspect-ratio: 1 / 1; /* Establece la relación de aspecto a 1:1 para que la imagen sea cuadrada */
+    object-fit: cover;
+}
+
+.lista {
+    background-color: "#1C1C21";
+}

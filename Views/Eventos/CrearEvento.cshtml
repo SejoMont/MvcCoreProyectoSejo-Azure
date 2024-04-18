@@ -1,0 +1,107 @@
+﻿@model MvcCoreProyectoSejo.Models.Evento
+@{
+    ViewData["Title"] = "Crear Evento";
+    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="CrearEvento" method="post" enctype="multipart/form-data">
+                        <input name="Recinto" value="@usuario.UsuarioID" type="hidden" />
+
+                        @* Nombre del evento *@
+                        <div class="mb-3">
+                            <label class="form-label">Nombre:</label>
+                            <input name="NombreEvento" class="form-control" placeholder="Introduce el nombre del evento" required />
+                        </div>
+
+                        @* Tipo de evento *@
+                        <div class="mb-3">
+                            <label class="form-label">Tipo Evento:</label>
+                            <select name="TipoEventoID" class="form-select" required>
+                                <option value="">Seleccionar tipo de evento</option>
+                                @foreach (var tipoEvento in ViewData["TiposEventos"] as List<TipoEvento>)
+                                {
+                                    <option value="@tipoEvento.Id">@tipoEvento.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        @* Fecha del evento *@
+                        <div class="mb-3">
+                            <label class="form-label">Fecha:</label>
+                            <input name="Fecha" type="date" class="form-control" required />
+                        </div>
+
+                        @* Ubicación *@
+                        <div class="mb-3">
+                            <label class="form-label">Ubicación:</label>
+                            <input name="Ubicacion" class="form-control" placeholder="Introduce la ubicación" required />
+                        </div>
+
+                        @* Provincia *@
+                        <div class="mb-3">
+                            <label class="form-label">Provincia:</label>
+                            <select name="Provincia" class="form-select" required>
+                                <option value="">Seleccionar Provincia</option>
+                                @foreach (var prov in ViewData["Provincias"] as List<Provincia>)
+                                {
+                                    <option value="@prov.Id">@prov.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        @* Aforo *@
+                        <div class="mb-3">
+                            <label class="form-label">Aforo:</label>
+                            <input type="number" name="Aforo" class="form-control" placeholder="Introduce el aforo máximo" required />
+                        </div>
+
+                        @* Imagen *@
+                        <div class="mb-3">
+                            <label class="form-label">Imagen:</label>
+                            <input name="Imagen" type="file" class="form-control" accept="image/*" required />
+                        </div>
+
+                        @* Mayores de edad *@
+                        <div class="mb-3 form-check">
+                            <input name="MayorDe18" type="checkbox" class="form-check-input" />
+                            <label class="form-check-label">Para Mayores de Edad</label>
+                        </div>
+
+                        @* Descripción *@
+                        <div class="mb-3">
+                            <label class="form-label">Descripción:</label>
+                            <textarea name="Descripcion" class="form-control" placeholder="Descripción del evento" required></textarea>
+                        </div>
+
+                        @* Link de Maps *@
+
+                            <input name="LinkMapsProvincia" class="form-control" placeholder="Enlace de Google Maps de la ubicación" type="hidden" value="maps"/>
+
+                        @* Precio *@
+                        <div class="mb-3">
+                            <label class="form-label">Precio:</label>
+                            <input name="Precio" type="number" class="form-control" placeholder="Precio de entrada" required />
+                        </div>
+
+                        @* Botón de envío *@
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Crear Evento</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

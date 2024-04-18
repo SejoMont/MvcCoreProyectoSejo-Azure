@@ -1,0 +1,80 @@
+﻿@model EventoDetalles
+@{
+    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Comprar Entradas para @Model.NombreEvento</h1>
+
+    <div class="mb-3">
+        <label for="NumeroEntradas" class="form-label">Número de Entradas:</label>
+        <input type="number" id="NumeroEntradas" class="form-control" value="1" min="1" />
+    </div>
+
+    <form method="post" id="formEntradas">
+        <div id="entradasContainer"></div>
+
+        <button type="submit" class="btn btn-success mt-3">
+            Comprar Entradas
+        </button>
+
+        <!-- Mostrar errores de validación -->
+        <div asp-validation-summary="All" class="text-danger mt-3"></div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        var usuarioId = @usuario.UsuarioID;
+
+        document.getElementById('NumeroEntradas').addEventListener('input', function () {
+            var numeroEntradas = parseInt(this.value);
+            var aforoRestante = @Model.Aforo - @Model.EntradasVendidas;
+            var maxEntradas = Math.min(aforoRestante, 5); // Máximo de 5 entradas o las disponibles si son menos
+            if (numeroEntradas > maxEntradas) {
+                alert("No puedes comprar más de " + maxEntradas + " entradas.");
+                this.value = maxEntradas; // Establecer el valor máximo disponible
+            }
+            generarCamposDeEntrada(usuarioId, Math.min(numeroEntradas, maxEntradas)); // Llamar a la función con el mínimo entre el número ingresado y el máximo permitido
+        });
+
+        function generarCamposDeEntrada(usuarioId, numeroEntradas) {
+            var container = document.getElementById('entradasContainer');
+            container.innerHTML = '';
+
+            for (var i = 0; i < numeroEntradas; i++) {
+                var entradaHtml =
+                    `<div class="card mb-3">
+                                <div class="card-body">
+                                    <h3 class="card-title">Entrada ${i + 1}</h3>
+                                    <input type="hidden" name="entradas[${i}].UsuarioID" value="${usuarioId}" required />
+                                    <input type="hidden" name="entradas[${i}].Qr" value="" required />
+                                    <input type="hidden" name="entradas[${i}].EventoID" value="${@Model.Id}" required />
+
+                                    <div class="mb-3">
+                                        <label for="Nombre${i}" class="form-label">Nombre:</label>
+                                        <input type="text" name="entradas[${i}].Nombre" id="Nombre${i}" class="form-control" required />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="Correo${i}" class="form-label">Correo:</label>
+                                        <input type="email" name="entradas[${i}].Correo" id="Correo${i}" class="form-control" required />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="DNI${i}" class="form-label">DNI:</label>
+                                        <input type="text" name="entradas[${i}].DNI" id="DNI${i}" class="form-control" required />
+                                    </div>
+
+                                    <!-- Agrega más campos según sea necesario -->
+
+                                </div>
+                            </div>`;
+
+                container.innerHTML += entradaHtml;
+            }
+        }
+
+        generarCamposDeEntrada(usuarioId, 1); // Llamar a la función con 1 como valor inicial
+    </script>
+}
