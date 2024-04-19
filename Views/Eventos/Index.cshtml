@@ -31,20 +31,20 @@
                 <label for="provincia" class="visually-hidden">Provincia</label>
                 <select class="form-control" name="provincia">
                     <option value="">- Todas las Provincias -</option>
-                    @* @foreach (var prov in provincias)
+                    @foreach (var prov in provincias)
                     {
                         <option value="@prov.Nombre" selected="@(prov.Nombre == provinciaFilter)">@prov.Nombre</option>
-                    } *@
+                    }
                 </select>
             </div>
             <div class="col-md-2">
                 <label for="tipo" class="visually-hidden">Tipo de Evento</label>
                 <select class="form-control" name="tipo">
                     <option value="">- Todos los Eventos -</option>
-                    @* @foreach (var tipo in tiposEvento)
+                    @foreach (var tipo in tiposEvento)
                     {
                         <option value="@tipo.Nombre" selected="@(tipo.Nombre == tipoFilter)">@tipo.Nombre</option>
-                    } *@
+                    }
                 </select>
             </div>
             <div class="col-md-1">

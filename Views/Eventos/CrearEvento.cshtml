@@ -12,6 +12,7 @@
                 <div class="card-body">
                     <form asp-action="CrearEvento" method="post" enctype="multipart/form-data">
                         <input name="Recinto" value="@usuario.UsuarioID" type="hidden" />
+                        <input name="EntradasVendidas" value="0" type="hidden" />
 
                         @* Nombre del evento *@
                         <div class="mb-3">
@@ -62,9 +63,13 @@
                         </div>
 
                         @* Imagen *@
-                        <div class="mb-3">
+                        @* <div class="mb-3">
                             <label class="form-label">Imagen:</label>
                             <input name="Imagen" type="file" class="form-control" accept="image/*" required />
+                        </div>  *@
+                        <div class="mb-3">
+                            <label class="form-label">Imagen:</label>
+                            <input name="Imagen" type="text" class="form-control" required />
                         </div>
 
                         @* Mayores de edad *@

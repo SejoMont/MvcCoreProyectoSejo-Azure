@@ -11,30 +11,10 @@ public class EventosController : Controller
 {
     private ServiceEventos service;
 
-    private EventosRepository repo;
-    private UsuariosRepository userRepo;
-    private ProvinciasRepository provinciasRepo;
-    private EntradasRepository entradasRepo;
-    private ArtistasEventoRepository artistsRepo;
-    private HelperPathProvider helperPathProvider;
-    private UploadFilesController uploadFilesController;
 
-    public EventosController(EventosRepository repo,
-        UsuariosRepository userRepo,
-        ProvinciasRepository provinciasRepo,
-        EntradasRepository entradasRepo,
-        HelperPathProvider helperPathProvider,
-        UploadFilesController uploadFilesController,
-        ArtistasEventoRepository artistsRepo,
-        ServiceEventos service)
+    public EventosController(ServiceEventos service)
     {
-        this.repo = repo;
-        this.userRepo = userRepo;
-        this.provinciasRepo = provinciasRepo;
-        this.entradasRepo = entradasRepo;
-        this.helperPathProvider = helperPathProvider;
-        this.uploadFilesController = uploadFilesController;
-        this.artistsRepo = artistsRepo;
+
         this.service = service;
     }
 
@@ -45,18 +25,18 @@ public class EventosController : Controller
         int pageSize = 8;
 
         List<EventoDetalles> eventos = await this.service.GetEventosAsync();
-        //List<TipoEvento> tipoEventos = await this.repo.GetTipoEventosAsync();
-        //List<Provincia> provincias = await this.provinciasRepo.GetAllProvinciassAsync();
+        List<TipoEvento> tipoEventos = await this.service.GetTipoEventosAsync();
+        List<Provincia> provincias = await this.service.GetProvinciasAsync();
 
         if (iduser != null)
         {
-            UsuarioDetalles user = await this.userRepo.GetUsuarioDetalles(iduser ?? 0);
+            UsuarioDetalles user = await this.service.GetUsuarioDetallesAsync(iduser ?? 0);
             ViewData["UsuarioDetalle"] = user;
         }
 
         if (filtro != null && filtro.TieneFiltros())
         {
-            eventos = await this.repo.BuscarEventosPorFiltros(filtro);
+            eventos = await this.service.GetEventosPorFiltrosAsync(filtro);
         }
         else
         {
@@ -66,8 +46,8 @@ public class EventosController : Controller
         // Paginar la lista de eventos
         var model = eventos.Skip((page - 1) * pageSize).Take(pageSize);
 
-        //ViewData["TipoEventos"] = tipoEventos;
-        //ViewData["Provincias"] = provincias;
+        ViewData["TipoEventos"] = tipoEventos;
+        ViewData["Provincias"] = provincias;
 
         // Agregar información de paginación a la vista
         ViewBag.PageNumber = page;
@@ -97,8 +77,8 @@ public class EventosController : Controller
 
     public async Task<IActionResult> TipoEvento(string tipo)
     {
-        List<EventoDetalles> eventos = await this.repo.GetAllEventosTipoAsync(tipo);
-        List<TipoEvento> tipoEventos = await this.repo.GetTipoEventosAsync();
+        List<EventoDetalles> eventos = await this.service.GetAllEventosTipoAsync(tipo);
+        List<TipoEvento> tipoEventos = await this.service.GetTipoEventosAsync();
 
         ViewData["TipoEventos"] = tipoEventos;
 
@@ -108,10 +88,10 @@ public class EventosController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        EventoDetalles eventoDetalles = await this.repo.GetDetallesEventoAsync(id);
-        List<ArtistaDetalles> artistas = await this.userRepo.GetAllArtistasEventoAsync(id);
-        List<ComentarioDetalles> comentarios = await this.repo.GetComentariosByEventoIdAsync(id);
-        List<Artista> artistasEvento = await this.artistsRepo.GetArtistasTempAsync(id);
+        EventoDetalles eventoDetalles = await this.service.FindEventoAsync(id);
+        List<ArtistaDetalles> artistas = await this.service.GetAllArtistasEventoAsync(id);
+        List<ComentarioDetalles> comentarios = await this.service.GetComentariosEventoAsync(id);
+        List<Artista> artistasEvento = await this.service.GetAllArtistasTempEventoAsync(id);
 
         ViewData["ArtistasUsers"] = artistas;
         ViewData["ArtistasEvento"] = artistasEvento;
@@ -122,66 +102,29 @@ public class EventosController : Controller
 
     public IActionResult CrearEvento()
     {
-        ViewData["Provincias"] = this.provinciasRepo.GetAllProvinciassAsync().Result;
-        ViewData["TiposEventos"] = this.repo.GetTipoEventosAsync().Result;
+        ViewData["Provincias"] = this.service.GetProvinciasAsync().Result;
+        ViewData["TiposEventos"] = this.service.GetTipoEventosAsync().Result;
         return View();
     }
     [HttpPost]
-    public async Task<IActionResult> CrearEvento(string NombreEvento, int TipoEventoID, DateTime Fecha, string Ubicacion, int Provincia, int Aforo, IFormFile Imagen, int Recinto, bool MayorDe18, string Descripcion, string LinkMapsProvincia, int Precio)
+    public async Task<IActionResult> CrearEvento(Evento evento)
     {
-        try
+        Evento createdEvento = await service.CrearEventoAsync(evento);
+        if (createdEvento != null)
         {
-            if (Imagen != null && Imagen.Length > 0)
-            {
-                // Llamar al método SubirFichero del controlador UploadFilesController
-                await uploadFilesController.SubirFicheroEventos(Imagen);
-
-                // Obtener la ruta completa del archivo utilizando el HelperPathProvider
-                string nombreArchivo = Imagen.FileName;
-
-                // Mapear el modelo de vista a la entidad de Evento
-                var nuevoEvento = new Evento
-                {
-                    NombreEvento = NombreEvento,
-                    Fecha = Fecha,
-                    TipoEventoID = TipoEventoID,
-                    Ubicacion = Ubicacion,
-                    Provincia = Provincia,
-                    Aforo = Aforo,
-                    Imagen = nombreArchivo,
-                    Recinto = Recinto,
-                    MayorDe18 = MayorDe18,
-                    Descripcion = Descripcion,
-                    LinkMapsProvincia = LinkMapsProvincia,
-                    EntradasVendidas = 0,
-                    Precio = Precio
-                };
-
-                // Llamar al repositorio para crear el evento (asincrónico)
-                await this.repo.CrearEventoAsync(nuevoEvento);
-
-                // Redirigir a la página de detalles del evento recién creado
-                return RedirectToAction("Details", new { id = nuevoEvento.EventoID });
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Por favor, seleccione una imagen.");
-                ViewData["Provincias"] = await provinciasRepo.GetAllProvinciassAsync();
-                ViewData["TiposEventos"] = await repo.GetTipoEventosAsync();
-                return View("CrearEvento");
-            }
+            // Retorna una respuesta 201 Created con la ubicación del nuevo recurso.
+            return RedirectToAction("Details", "Eventos", new { id = createdEvento.EventoID });
         }
-        catch (Exception ex)
+        else
         {
-            // Manejar la excepción
-            ModelState.AddModelError(string.Empty, "Error al procesar la solicitud. Por favor, inténtalo de nuevo.");
-            return View("CrearEvento");
+            // Si la creación falla, considera devolver un código de error adecuado.
+            return StatusCode(500, "No se pudo crear el evento");
         }
     }
 
     public async Task<IActionResult> Comprar(int idevento)
     {
-        EventoDetalles evento = await this.repo.GetDetallesEventoAsync(idevento);
+        EventoDetalles evento = await this.service.FindEventoAsync(idevento);
 
         return View(evento);
     }
@@ -191,8 +134,8 @@ public class EventosController : Controller
 
         foreach (var entrada in entradas)
         {
-            await entradasRepo.AsignarEntradasAsync(entrada.EventoID, entrada.UsuarioID, entrada.Nombre, entrada.Correo, entrada.Dni);
-            await repo.RestarEntrada(entrada.EventoID);
+            await this.service.AsignarEntradasAsync(entrada);
+            await this.service.RestarEntradaAsync(entrada.EventoID);
         }
 
         return RedirectToAction("Index");
@@ -210,7 +153,7 @@ public class EventosController : Controller
             Puntuacion = puntuacion
         };
 
-        await repo.AddComentarioAsync(comentario);
+        await this.service.AddComentarioAsync(comentario);
         return RedirectToAction("Details", new { id = eventoId });
     }
 
