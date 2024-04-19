@@ -2,10 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
 using MvcCoreProyectoSejo.Repository;
+using MvcCoreProyectoSejo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpContextAccessor();
@@ -19,13 +22,15 @@ builder.Services.AddTransient<HelperMails>();
 builder.Services.AddTransient<HelperTools>();
 builder.Services.AddTransient<HelperPathProvider>();
 
+builder.Services.AddTransient<ServiceEventos>();
+
 builder.Services.AddTransient<EntradasRepository>();
 builder.Services.AddTransient<ArtistasEventoRepository>();
 builder.Services.AddTransient<EventosRepository>();
 builder.Services.AddTransient<UsuariosRepository>();
 builder.Services.AddTransient<ProvinciasRepository>();
 
-string connectionString = builder.Configuration.GetConnectionString("SqlServerSejo");
+string connectionString = builder.Configuration.GetConnectionString("ApiEventos");
 builder.Services.AddDbContext<EventosContext>(options => options.UseSqlServer(connectionString));
 
 var app = builder.Build();

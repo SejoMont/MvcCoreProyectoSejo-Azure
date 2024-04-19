@@ -1,25 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using MvcCoreProyectoSejo.Extensions;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
 using MvcCoreProyectoSejo.Repository;
+using MvcCoreProyectoSejo.Services;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Newtonsoft.Json;
 
 namespace MvcCoreProyectoSejo.Controllers
 {
     public class UsuariosController : Controller
     {
         private UsuariosRepository repo;
+        private ServiceEventos service;
         private EventosRepository eventosRepo;
 
         private HelperMails helperMails;
         private HelperPathProvider helperPathProvider;
 
-        public UsuariosController(UsuariosRepository repo, EventosRepository eventosRepo, HelperMails helperMails, HelperPathProvider helperPathProvider)
+        public UsuariosController(UsuariosRepository repo, EventosRepository eventosRepo, HelperMails helperMails, HelperPathProvider helperPathProvider, ServiceEventos service)
         {
             this.repo = repo;
             this.eventosRepo = eventosRepo;
             this.helperMails = helperMails;
             this.helperPathProvider = helperPathProvider;
+            this.service = service;
         }
 
         public async Task<IActionResult> Details(int iduser)
@@ -64,18 +72,28 @@ namespace MvcCoreProyectoSejo.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string correo, string password)
         {
-            bool loginSuccess = await repo.LogInUserAsync(correo, password);
-            if (loginSuccess)
+            string login = await this.service.Login(correo, password);
+            if (login != null)
             {
-                Usuario user = repo.GetUser(correo);
-                HttpContext.Session.SetObject("CurrentUser", user);
-                return RedirectToAction("Index", "Eventos", new { iduser = user.UsuarioID });
+                // Validar el token JWT
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.ReadToken(login) as JwtSecurityToken;
+
+                if (token != null)
+                {
+                    // Extraer la información del usuario del token
+                    var userDataClaim = token.Claims.First(claim => claim.Type == "UserData").Value;
+                    var userData = JsonConvert.DeserializeObject<Usuario>(userDataClaim);
+
+                    // Establecer el usuario en la sesión
+                    HttpContext.Session.SetObject("CurrentUser", userData);
+
+                    return RedirectToAction("Index", "Eventos", new { iduser = userData.UsuarioID });
+                }
             }
-            else
-            {
-                ViewData["Mensaje"] = "Credenciales incorrectas. Por favor, inténtalo de nuevo.";
-                return View();
-            }
+
+            ViewData["Mensaje"] = "Credenciales incorrectas. Por favor, inténtalo de nuevo.";
+            return View();
         }
 
         public IActionResult Registro()

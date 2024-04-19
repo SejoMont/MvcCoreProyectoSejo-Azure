@@ -5,9 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
 using MvcCoreProyectoSejo.Repository;
+using MvcCoreProyectoSejo.Services;
 
 public class EventosController : Controller
 {
+    private ServiceEventos service;
+
     private EventosRepository repo;
     private UsuariosRepository userRepo;
     private ProvinciasRepository provinciasRepo;
@@ -16,13 +19,14 @@ public class EventosController : Controller
     private HelperPathProvider helperPathProvider;
     private UploadFilesController uploadFilesController;
 
-    public EventosController(EventosRepository repo, 
-        UsuariosRepository userRepo, 
-        ProvinciasRepository provinciasRepo, 
-        EntradasRepository entradasRepo, 
-        HelperPathProvider helperPathProvider, 
-        UploadFilesController uploadFilesController, 
-        ArtistasEventoRepository artistsRepo)
+    public EventosController(EventosRepository repo,
+        UsuariosRepository userRepo,
+        ProvinciasRepository provinciasRepo,
+        EntradasRepository entradasRepo,
+        HelperPathProvider helperPathProvider,
+        UploadFilesController uploadFilesController,
+        ArtistasEventoRepository artistsRepo,
+        ServiceEventos service)
     {
         this.repo = repo;
         this.userRepo = userRepo;
@@ -31,6 +35,7 @@ public class EventosController : Controller
         this.helperPathProvider = helperPathProvider;
         this.uploadFilesController = uploadFilesController;
         this.artistsRepo = artistsRepo;
+        this.service = service;
     }
 
     [HttpGet]
@@ -39,9 +44,9 @@ public class EventosController : Controller
         // Cantidad de eventos por página
         int pageSize = 8;
 
-        List<EventoDetalles> eventos = new List<EventoDetalles>();
-        List<TipoEvento> tipoEventos = await this.repo.GetTipoEventosAsync();
-        List<Provincia> provincias = await this.provinciasRepo.GetAllProvinciassAsync();
+        List<EventoDetalles> eventos = await this.service.GetEventosAsync();
+        //List<TipoEvento> tipoEventos = await this.repo.GetTipoEventosAsync();
+        //List<Provincia> provincias = await this.provinciasRepo.GetAllProvinciassAsync();
 
         if (iduser != null)
         {
@@ -55,14 +60,14 @@ public class EventosController : Controller
         }
         else
         {
-            eventos = await this.repo.GetAllEventosHoyAsync();
+            eventos = await this.service.GetEventosAsync();
         }
 
         // Paginar la lista de eventos
         var model = eventos.Skip((page - 1) * pageSize).Take(pageSize);
 
-        ViewData["TipoEventos"] = tipoEventos;
-        ViewData["Provincias"] = provincias;
+        //ViewData["TipoEventos"] = tipoEventos;
+        //ViewData["Provincias"] = provincias;
 
         // Agregar información de paginación a la vista
         ViewBag.PageNumber = page;
@@ -143,7 +148,7 @@ public class EventosController : Controller
                     Ubicacion = Ubicacion,
                     Provincia = Provincia,
                     Aforo = Aforo,
-                    Imagen = nombreArchivo, 
+                    Imagen = nombreArchivo,
                     Recinto = Recinto,
                     MayorDe18 = MayorDe18,
                     Descripcion = Descripcion,
@@ -209,5 +214,5 @@ public class EventosController : Controller
         return RedirectToAction("Details", new { id = eventoId });
     }
 
-    
+
 }
