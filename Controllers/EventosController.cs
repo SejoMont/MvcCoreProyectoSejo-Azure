@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using ApiCoreProyectoEventos.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
@@ -99,12 +100,14 @@ public class EventosController : Controller
         return View(eventoDetalles);
     }
 
+    [AuthorizeRoles("3")]
     public IActionResult CrearEvento()
     {
         ViewData["Provincias"] = this.service.GetProvinciasAsync().Result;
         ViewData["TiposEventos"] = this.service.GetTipoEventosAsync().Result;
         return View();
     }
+
     [HttpPost]
     public async Task<IActionResult> CrearEvento(Evento evento)
     {

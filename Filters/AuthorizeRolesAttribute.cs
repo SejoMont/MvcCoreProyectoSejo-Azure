@@ -20,31 +20,39 @@ namespace ApiCoreProyectoEventos.Filters
             var user = context.HttpContext.User;
             if (!user.Identity.IsAuthenticated)
             {
-                context.Result = GetRoute("Usuarios", "Login");
-                return;
+                RouteValueDictionary routeLogin =
+                    new RouteValueDictionary(new
+                    {
+                        controller = "Usuarios",
+                        action = "Login"
+                    });
+                context.Result =
+                    new RedirectToRouteResult(routeLogin);
             }
-
-            //if (user.IsInRole("4")) // Admin role
-            //{
-            //    // Redirecciona al panel de admin si el usuario es admin
-            //    context.Result = GetRoute("Admin", "Dashboard");
-            //    return;
-            //}
-
-            // Comprueba si el usuario tiene alguno de los roles permitidos
-            bool authorized = false;
-            foreach (var role in rolesPermitidos)
+            else
             {
-                if (user.IsInRole(role))
+                //if (user.IsInRole("4")) // Admin role
+                //{
+                //    // Redirecciona al panel de admin si el usuario es admin
+                //    context.Result = GetRoute("Admin", "Dashboard");
+                //    return;
+                //}
+
+                // Comprueba si el usuario tiene alguno de los roles permitidos
+                bool authorized = false;
+                foreach (var role in rolesPermitidos)
                 {
-                    authorized = true;
-                    break;
+                    if (user.IsInRole(role))
+                    {
+                        authorized = true;
+                        break;
+                    }
                 }
-            }
 
-            if (!authorized)
-            {
-                context.Result = GetRoute("Usuarios", "ErrorAcceso");
+                if (!authorized)
+                {
+                    context.Result = GetRoute("Usuarios", "ErrorAcceso");
+                }
             }
         }
 

@@ -60,6 +60,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
@@ -69,7 +70,7 @@ app.UseMvc(routes =>
 {
     routes.MapRoute(
         name: "default",
-        template: "{controller=Home}/{action=Index}/{id?}");
+        template: "{controller=Eventos}/{action=Index}/{id?}");
 });
 //app.MapControllerRoute(
 //    name: "default",

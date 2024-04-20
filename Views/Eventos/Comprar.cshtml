@@ -1,6 +1,6 @@
 ﻿@model EventoDetalles
 @{
-    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 }
 
 <div class="container mt-4">
@@ -25,7 +25,7 @@
 
 @section Scripts {
     <script>
-        var usuarioId = @usuario.UsuarioID;
+        var usuarioId = @userId;
 
         document.getElementById('NumeroEntradas').addEventListener('input', function () {
             var numeroEntradas = parseInt(this.value);

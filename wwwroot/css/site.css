@@ -9,12 +9,12 @@ html {
     background-color: rgba(0, 0, 0, 0.7); /* Ajusta el último valor para cambiar la opacidad */
 }
 
-.navbar .container-fluid {
+/*.navbar .container-fluid {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-}
+}*/
 
 /* Estilos para el toggler en pantallas pequeñas */
 .navbar-toggler {
@@ -32,13 +32,18 @@ html {
     flex-grow: 1;
 }
 
+.navbar-collapse.collapsing {
+    transition: none;
+}
+
 .navbar {
     z-index: 100; /* Asegura que esté encima de otros elementos */
 }
 
+
 /* Estilos para el desplegable */
 .navbar-nav .dropdown-menu {
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .navbar-nav .dropdown-item {
@@ -76,7 +81,7 @@ html {
 
 body {
     margin-top: 3vw; /* Altura del navbar */
-    padding-top: 2.5rem; /* Ajusta según sea necesario */
+    padding-top: 3rem; /* Ajusta según sea necesario */
     font-family: "Rubik", sans-serif;
     color: whitesmoke;
     margin-bottom: 180px;

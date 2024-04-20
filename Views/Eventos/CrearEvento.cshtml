@@ -1,7 +1,8 @@
 ﻿@model MvcCoreProyectoSejo.Models.Evento
+
 @{
     ViewData["Title"] = "Crear Evento";
-    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 }
 
 <div class="container mt-4">
@@ -11,7 +12,7 @@
             <div class="card">
                 <div class="card-body">
                     <form asp-action="CrearEvento" method="post" enctype="multipart/form-data">
-                        <input name="Recinto" value="@usuario.UsuarioID" type="hidden" />
+                        <input name="Recinto" value="@userId" type="hidden" />
                         <input name="EntradasVendidas" value="0" type="hidden" />
 
                         @* Nombre del evento *@

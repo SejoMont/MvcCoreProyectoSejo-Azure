@@ -19,16 +19,50 @@ namespace MvcCoreProyectoSejo.Services
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        private async Task<T> CallApiSync<T>(string request)
+        #region Metodos Genericos
+        //    public async Task<string> GetTokenAsync(string username
+        //, string password)
+        //    {
+        //        using (HttpClient client = new HttpClient())
+        //        {
+        //            string request = "api/Usuarios/login";
+        //            client.BaseAddress = new Uri(this.urlApiEventos);
+        //            client.DefaultRequestHeaders.Clear();
+        //            client.DefaultRequestHeaders.Accept.Add(this.header);
+        //            Login model = new Login
+        //            {
+        //                Correo = username,
+        //                Password = password
+        //            };
+        //            string jsonData = JsonConvert.SerializeObject(model);
+        //            StringContent content =
+        //                new StringContent(jsonData, Encoding.UTF8,
+        //                "application/json");
+        //            HttpResponseMessage response = await
+        //                client.PostAsync(request, content);
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                string data = await response.Content.ReadAsStringAsync();
+        //                JObject keys = JObject.Parse(data);
+        //                string token = keys.GetValue("response").ToString();
+        //                return token;
+        //            }
+        //            else
+        //            {
+        //                return null;
+        //            }
+        //        }
+        //    }
+
+        private async Task<T> CallApiAsync<T>(string request)
         {
             using (HttpClient client = new HttpClient())
             {
-
                 client.BaseAddress = new Uri(this.urlApiEventos);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.header);
-
-                HttpResponseMessage response = await client.GetAsync(request);
+                HttpResponseMessage response =
+                    await client.GetAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     T data = await response.Content.ReadAsAsync<T>();
@@ -40,6 +74,34 @@ namespace MvcCoreProyectoSejo.Services
                 }
             }
         }
+
+        //TENDREMOS UN METODO GENERICO QUE RECIBIRA EL REQUEST 
+        //Y EL TOKEN
+        private async Task<T> CallApiAsync<T>
+            (string request, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+                client.DefaultRequestHeaders.Add
+                    ("Authorization", "bearer " + token);
+                HttpResponseMessage response =
+                    await client.GetAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    T data = await response.Content.ReadAsAsync<T>();
+                    return data;
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
+
+        #endregion
 
         #region Usuarios
         public async Task<string> Login(Login login)
@@ -78,7 +140,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Usuarios/EmailExists?correo=" + correo;
 
-            bool emailExist = await this.CallApiSync<bool>(request);
+            bool emailExist = await this.CallApiAsync<bool>(request);
 
             return emailExist;
         }
@@ -118,7 +180,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Usuarios/GetUser/" + correo;
 
-            Usuario user = await this.CallApiSync<Usuario>(request);
+            Usuario user = await this.CallApiAsync<Usuario>(request);
 
             return user;
         }
@@ -127,7 +189,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Usuarios/Details/" + iduser;
 
-            UsuarioDetalles user = await this.CallApiSync<UsuarioDetalles>(request);
+            UsuarioDetalles user = await this.CallApiAsync<UsuarioDetalles>(request);
 
             return user;
         }
@@ -138,7 +200,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Provincias/GetAllProvincias";
 
-            List<Provincia> provincias = await this.CallApiSync<List<Provincia>>(request);
+            List<Provincia> provincias = await this.CallApiAsync<List<Provincia>>(request);
 
             return provincias;
         }
@@ -149,7 +211,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "/api/Eventos/GetEventos";
 
-            List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
+            List<EventoDetalles> eventos = await this.CallApiAsync<List<EventoDetalles>>(request);
 
             return eventos;
         }
@@ -163,6 +225,15 @@ namespace MvcCoreProyectoSejo.Services
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.header);
 
+                // Recuperar el token JWT de la sesión
+                string token = this.httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+
+                // Añadir el token JWT en el encabezado Authorization
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
                 string jsonData = JsonConvert.SerializeObject(evento);
                 StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
@@ -170,24 +241,25 @@ namespace MvcCoreProyectoSejo.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Deserializa y devuelve el objeto Evento creado
                     string responseData = await response.Content.ReadAsStringAsync();
                     Evento createdEvento = JsonConvert.DeserializeObject<Evento>(responseData);
                     return createdEvento;
                 }
                 else
                 {
-                    // Considera manejar diferentes tipos de errores o devolver un valor nulo
+                    // Manejo de errores, posiblemente devolver excepciones específicas
                     return null;
                 }
             }
         }
 
+
+
         public async Task<List<EventoDetalles>> GetAllEventosTipoAsync(string tipo)
         {
             string request = "api/Eventos/GetAllEventosTipo?tipo=" + tipo;
 
-            List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
+            List<EventoDetalles> eventos = await this.CallApiAsync<List<EventoDetalles>>(request);
 
             return eventos;
         }
@@ -196,7 +268,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Eventos/GetAllEventosArtista?iduser=" + iduser;
 
-            List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
+            List<EventoDetalles> eventos = await this.CallApiAsync<List<EventoDetalles>>(request);
 
             return eventos;
         }
@@ -205,7 +277,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Eventos/GetEventosPorRecinto?iduser=" + iduser;
 
-            List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
+            List<EventoDetalles> eventos = await this.CallApiAsync<List<EventoDetalles>>(request);
 
             return eventos;
         }
@@ -242,7 +314,7 @@ namespace MvcCoreProyectoSejo.Services
             // Elimina el último '&' si está presente
             string requestUrl = queryString.ToString().TrimEnd('&');
 
-            return await CallApiSync<List<EventoDetalles>>(requestUrl);
+            return await CallApiAsync<List<EventoDetalles>>(requestUrl);
         }
 
 
@@ -250,7 +322,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Eventos/GetTipoEventos";
 
-            List<TipoEvento> tipoEventos = await this.CallApiSync<List<TipoEvento>>(request);
+            List<TipoEvento> tipoEventos = await this.CallApiAsync<List<TipoEvento>>(request);
 
             return tipoEventos;
         }
@@ -259,7 +331,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Eventos/FindEvento?id=" + idevento;
 
-            EventoDetalles evento = await this.CallApiSync<EventoDetalles>(request);
+            EventoDetalles evento = await this.CallApiAsync<EventoDetalles>(request);
 
             return evento;
         }
@@ -270,7 +342,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/ArtistasEvento/GetArtistasTempEvento/?idevento=" + idevento;
 
-            List<Artista> artistas = await this.CallApiSync<List<Artista>>(request);
+            List<Artista> artistas = await this.CallApiAsync<List<Artista>>(request);
 
             return artistas;
         }
@@ -279,7 +351,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/ArtistasEvento/GetArtistasEvento/?idevento=" + idevento;
 
-            List<ArtistaDetalles> artistas = await this.CallApiSync<List<ArtistaDetalles>>(request);
+            List<ArtistaDetalles> artistas = await this.CallApiAsync<List<ArtistaDetalles>>(request);
 
             return artistas;
         }
@@ -288,7 +360,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/ArtistasEvento/GetAllArtistas";
 
-            List<UsuarioDetalles> artistas = await this.CallApiSync<List<UsuarioDetalles>>(request);
+            List<UsuarioDetalles> artistas = await this.CallApiAsync<List<UsuarioDetalles>>(request);
 
             return artistas;
         }
@@ -346,17 +418,26 @@ namespace MvcCoreProyectoSejo.Services
         #region Comentarios
         public async Task<bool> AddComentarioAsync(Comentario comentario)
         {
-            string request = "api/Comentarios/AddComentario";
+            string requestUri = "api/Comentarios/AddComentario";
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(this.urlApiEventos);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.header);
 
+                // Recuperar el token JWT de la sesión
+                string token = this.httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+
+                // Añadir el token JWT en el encabezado Authorization
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
                 string jsonData = JsonConvert.SerializeObject(comentario);
                 StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await client.PostAsync(request, content);
+                HttpResponseMessage response = await client.PostAsync(requestUri, content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -364,16 +445,18 @@ namespace MvcCoreProyectoSejo.Services
                 }
                 else
                 {
+                    // Podrías manejar diferentes tipos de errores aquí y decidir qué hacer con ellos
                     return false;
                 }
             }
         }
 
+
         public async Task<List<ComentarioDetalles>> GetComentariosEventoAsync(int idevento)
         {
             string request = "/api/Comentarios/GetComentariosEvento?idevento=" + idevento;
 
-            List<ComentarioDetalles> comentarios = await this.CallApiSync<List<ComentarioDetalles>>(request);
+            List<ComentarioDetalles> comentarios = await this.CallApiAsync<List<ComentarioDetalles>>(request);
 
             return comentarios;
         }
@@ -435,7 +518,7 @@ namespace MvcCoreProyectoSejo.Services
         {
             string request = "api/Entradas/VerEntradas/" + iduser;
 
-            List<EntradaDetalles> entradas = await this.CallApiSync<List<EntradaDetalles>>(request);
+            List<EntradaDetalles> entradas = await this.CallApiAsync<List<EntradaDetalles>>(request);
 
             return entradas;
         }

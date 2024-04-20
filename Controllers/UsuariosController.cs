@@ -8,6 +8,8 @@ using MvcCoreProyectoSejo.Services;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json;
+using ApiCoreProyectoEventos.Filters;
+using System.Security.Principal;
 
 namespace MvcCoreProyectoSejo.Controllers
 {
@@ -62,7 +64,7 @@ namespace MvcCoreProyectoSejo.Controllers
             return View(usuarioDetalles);
         }
 
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
             return View();
         }
@@ -83,15 +85,48 @@ namespace MvcCoreProyectoSejo.Controllers
                     var userDataClaim = token.Claims.First(claim => claim.Type == "UserData").Value;
                     var userData = JsonConvert.DeserializeObject<Usuario>(userDataClaim);
 
-                    // Establecer el usuario en la sesión
-                    HttpContext.Session.SetObject("CurrentUser", userData);
+                    // Configuración de la identidad y claims
+                    ClaimsIdentity identity = new ClaimsIdentity(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        ClaimTypes.Name, ClaimTypes.Role);
 
-                    return RedirectToAction("Index", "Eventos", new { iduser = userData.UsuarioID });
+                    // Agregar claims básicos
+                    identity.AddClaim(new Claim(ClaimTypes.Name, userData.NombreUsuario));
+                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userData.UsuarioID.ToString()));
+
+                    // Puedes agregar más claims según necesites
+                    identity.AddClaim(new Claim("Email", userData.Correo));
+                    identity.AddClaim(new Claim(ClaimTypes.Role, (userData.RolID).ToString()));
+
+                    //Guardar el token en la sesión
+                    HttpContext.Session.SetString("TOKEN", loginToken);
+
+                    // Crear el principal y autenticar al usuario
+                    ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
+
+                    // Establecer la autenticación de cookies con las claims y expiración
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        userPrincipal,
+                        new AuthenticationProperties
+                        {
+                            IsPersistent = true, // para que la cookie persista entre sesiones del navegador
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30) // establece la misma expiración que el token JWT
+                        });
+
+                    // Redireccionar a la vista principal del usuario
+                    return RedirectToAction("Index", "Eventos");
                 }
             }
 
             ViewData["Mensaje"] = "Credenciales incorrectas. Por favor, inténtalo de nuevo.";
             return View();
+        }
+
+        [AuthorizeRoles]
+        public IActionResult LogFalso()
+        {
+            return RedirectToAction("Index", "Eventos");
         }
 
         public IActionResult Registro()
@@ -149,9 +184,11 @@ namespace MvcCoreProyectoSejo.Controllers
         //    return RedirectToAction("Index", "Eventos");
         //}
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Remove("CurrentUser");
+            await HttpContext.SignOutAsync
+                (CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
 

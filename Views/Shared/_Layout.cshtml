@@ -1,10 +1,4 @@
-﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-@using MvcCoreProyectoSejo.Extensions
-@{
-    var currentUser = HttpContextAccessor.HttpContext.Session.GetObject<Usuario>("CurrentUser");
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -23,55 +17,33 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-black-opacity fixed-top">
             <div class="container-fluid">
-
-                <a class="navbar-brand mr-auto" asp-area="" asp-controller="Eventos" asp-action="Index">
-                    <img src="~/img/logo.png" style="width:20%" />
+                <!-- Logo y enlace a la página de inicio -->
+                <a class="navbar-brand" asp-area="" asp-controller="Eventos" asp-action="Index">
+                    <img src="~/img/logo.png" style="width:10rem;" alt="Logo">
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <!-- Botón del menú para dispositivos móviles -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
-                    <ul class="navbar-nav">
-                        @{
-                            if (currentUser != null)
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        @currentUser.NombreUsuario
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <li><a class="dropdown-item" href="@Url.Action("Details", "Usuarios", new { iduser = currentUser.UsuarioID })">Mi perfil</a></li>
-                                        <li><a class="dropdown-item" href="@Url.Action("VerEntradas", "Entradas", new { iduser = currentUser.UsuarioID })">Mis Entradas</a></li>
-                                        <li><a class="dropdown-item" href="@Url.Action("Logout", "Usuarios")">Cerrar sesión</a></li>
-                                    </ul>
-                                </li>
-                            }
-                            else
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Iniciar o Registrarse
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Usuarios" asp-action="Registro">Registro</a></li>
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Usuarios" asp-action="Login">Login</a></li>
-                                    </ul>
-                                </li>
-                            }
-                        }
+
+                <!-- Elementos del menú de navegación -->
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto">
+                        <partial name="_MenuUsuarios" />
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
 
+
     <div class="container content-wrapper">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
-        
+
     </div>
     @await RenderSectionAsync("Modal", required: false)
 

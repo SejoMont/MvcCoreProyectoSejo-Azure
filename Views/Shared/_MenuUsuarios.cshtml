@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+
+<ul class="navbar-nav">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Details", "Usuarios", new { iduser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value })">Mi perfil</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("VerEntradas", "Entradas", new { iduser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value })">Mis Entradas</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Logout", "Usuarios")">Cerrar sesión</a>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Iniciar o Registrarse
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" asp-area="" asp-controller="Usuarios" asp-action="Registro">Registro</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="Usuarios" asp-action="LogFalso">Login</a></li>
+            </ul>
+        </li>
+    }
+</ul>

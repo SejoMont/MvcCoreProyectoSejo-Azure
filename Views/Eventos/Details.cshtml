@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Detalles del Evento";
-    var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
     List<ArtistaDetalles> artistas = ViewData["ArtistasUsers"] as List<ArtistaDetalles>;
     List<Artista> artistasEventos = ViewData["ArtistasEvento"] as List<Artista>;
     List<ComentarioDetalles> comentarios = ViewData["Comentarios"] as List<ComentarioDetalles>;
@@ -19,7 +19,7 @@
                 {
                     <button disabled class="btn btn-outline-secondary" style="width: 100%">Evento finalizado</button>
                 }
-                else if (usuario == null)
+                else if (userId == null)
                 {
                     <a asp-action="Login" asp-controller="Usuarios" class="btn btn-outline-danger btn-block" style="width: 100%">Inicia sesión para comprar entradas</a>
                 }
@@ -51,7 +51,7 @@
                     <h3>Cartel</h3>
                 }
 
-                @if (usuario != null && usuario.UsuarioID == Model.RecintoId)
+                @if (userId != null && userId == Model.RecintoId.ToString())
                 {
                     <a href="#" data-bs-toggle="modal" data-bs-target="#modalAddArtista">¿No está el artista que buscas?, ¡Añádelo!</a>
                     <div id="addArtista"></div>
@@ -104,7 +104,7 @@
 
     @if (Model.Fecha < DateTime.Now)
     {
-        if (usuario != null)
+        if (userId != null)
         {
             <br />
 
@@ -114,7 +114,7 @@
 
             <br />
             <form asp-action="AddComentario" method="post">
-                <input type="hidden" name="userId" value="@usuario.UsuarioID" />
+                <input type="hidden" name="userId" value="@int.Parse(userId)" />
                 <input type="hidden" name="eventoId" value="@Model.Id" />
                 <div class="form-group">
                     <label for="texto"><h5>Escribe un Comentario:</h5></label>
