@@ -1,15 +1,33 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
-using MvcCoreProyectoSejo.Repository;
 using MvcCoreProyectoSejo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+//Habilitamos session dentro de nuestro servidor
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+
+//Habilitamos la seguridad en servicios
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme =
+    CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme =
+    CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme =
+    CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie();
+
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddControllersWithViews();
+//Personalizamos nuestras rutas
+builder.Services.AddControllersWithViews
+    (options => options.EnableEndpointRouting = false)
+    .AddSessionStateTempDataProvider();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -23,12 +41,6 @@ builder.Services.AddTransient<HelperTools>();
 builder.Services.AddTransient<HelperPathProvider>();
 
 builder.Services.AddTransient<ServiceEventos>();
-
-builder.Services.AddTransient<EntradasRepository>();
-builder.Services.AddTransient<ArtistasEventoRepository>();
-builder.Services.AddTransient<EventosRepository>();
-builder.Services.AddTransient<UsuariosRepository>();
-builder.Services.AddTransient<ProvinciasRepository>();
 
 string connectionString = builder.Configuration.GetConnectionString("ApiEventos");
 builder.Services.AddDbContext<EventosContext>(options => options.UseSqlServer(connectionString));
@@ -52,8 +64,15 @@ app.UseAuthorization();
 
 app.UseSession();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Eventos}/{action=Index}/{id?}");
+// Cambiamos el mapeo de Rutas para poder usar la Seguridad
+app.UseMvc(routes =>
+{
+    routes.MapRoute(
+        name: "default",
+        template: "{controller=Home}/{action=Index}/{id?}");
+});
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Eventos}/{action=Index}/{id?}");
 
 app.Run();

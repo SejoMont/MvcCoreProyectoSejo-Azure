@@ -4,13 +4,11 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
-using MvcCoreProyectoSejo.Repository;
 using MvcCoreProyectoSejo.Services;
 
 public class EventosController : Controller
 {
     private ServiceEventos service;
-
 
     public EventosController(ServiceEventos service)
     {
@@ -96,6 +94,7 @@ public class EventosController : Controller
         ViewData["ArtistasUsers"] = artistas;
         ViewData["ArtistasEvento"] = artistasEvento;
         ViewData["Comentarios"] = comentarios;
+
 
         return View(eventoDetalles);
     }

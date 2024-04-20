@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MvcCoreProyectoSejo.Models;
-using MvcCoreProyectoSejo.Repository;
+using MvcCoreProyectoSejo.Services;
 
 namespace MvcCoreProyectoSejo.Controllers
 {
     public class EntradasController : Controller
     {
-        private EntradasRepository repo;
+        private ServiceEventos service;
 
-        public EntradasController(EntradasRepository repo)
+        public EntradasController(ServiceEventos service)
         {
-            this.repo = repo;
+            this.service = service;
         }
 
         public async Task<IActionResult> VerEntradas(int iduser)
         {
-            List<EntradaDetalles> entradasUsuario = await this.repo.GetAllEntradasUsuarioAsync(iduser);
+            List<EntradaDetalles> entradasUsuario = await this.service.GetAllEntradasUsuarioAsync(iduser);
 
             // Agrupar las entradas por EventoID y contar el número de entradas en cada grupo
             //List<EntradasPorEventoViewModel> entradasAgrupadas = entradasUsuario.GroupBy(e => e.EventoID)

@@ -5,6 +5,7 @@
     var usuario = Context.Session.GetObject<Usuario>("CurrentUser");
     List<ArtistaDetalles> artistas = ViewData["ArtistasUsers"] as List<ArtistaDetalles>;
     List<Artista> artistasEventos = ViewData["ArtistasEvento"] as List<Artista>;
+    List<ComentarioDetalles> comentarios = ViewData["Comentarios"] as List<ComentarioDetalles>;
 }
 
 <div class="container mt-8" style="width: 90%">
@@ -108,7 +109,7 @@
             <br />
 
             <br />
-            
+
             <br />
 
             <br />
@@ -137,9 +138,13 @@
 
         }
         <div class="mt-3">
-            <h5>Comentarios</h5>
+            @if (Model.Fecha < DateTime.Now && comentarios.Count() != 0)
+            {
+                <h5>Comentarios</h5>
+            }
+
             <div class="list-group">
-                @foreach (var comentario in (List<ComentarioDetalles>)ViewData["Comentarios"])
+                @foreach (var comentario in comentarios)
                 {
                     <div class="list-group-item">
                         <p>@comentario.Texto</p>

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using MvcCoreProyectoSejo.Extensions;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
-using MvcCoreProyectoSejo.Repository;
 using MvcCoreProyectoSejo.Services;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,17 +13,16 @@ namespace MvcCoreProyectoSejo.Controllers
 {
     public class UsuariosController : Controller
     {
-        private UsuariosRepository repo;
+
         private ServiceEventos service;
-        private EventosRepository eventosRepo;
+
 
         private HelperMails helperMails;
         private HelperPathProvider helperPathProvider;
 
-        public UsuariosController(UsuariosRepository repo, EventosRepository eventosRepo, HelperMails helperMails, HelperPathProvider helperPathProvider, ServiceEventos service)
+        public UsuariosController(HelperMails helperMails, HelperPathProvider helperPathProvider, ServiceEventos service)
         {
-            this.repo = repo;
-            this.eventosRepo = eventosRepo;
+
             this.helperMails = helperMails;
             this.helperPathProvider = helperPathProvider;
             this.service = service;
@@ -32,7 +30,7 @@ namespace MvcCoreProyectoSejo.Controllers
 
         public async Task<IActionResult> Details(int iduser)
         {
-            UsuarioDetalles usuarioDetalles = await this.repo.GetUsuarioDetalles(iduser);
+            UsuarioDetalles usuarioDetalles = await this.service.GetUsuarioDetallesAsync(iduser);
             // Asume que el rol del usuario está almacenado en el modelo UsuarioDetalles
             int rolId = usuarioDetalles.RolID;
 
@@ -45,11 +43,11 @@ namespace MvcCoreProyectoSejo.Controllers
                         //eventosAsociados = await this.eventosRepo.GetEventosPorAsistenciaUsuarioAsync(iduser);
                     break;
                 case 2: // Artista
-                    eventosAsociados = await this.eventosRepo.GetAllEventosArtistaAsync(iduser);
+                    eventosAsociados = await this.service.GetAllEventosArtistaAsync(iduser);
                     break;
                 case 3: // Recinto
                         // Asume la existencia de un método que obtiene eventos asociados a un recinto
-                    eventosAsociados = await this.eventosRepo.GetEventosPorRecintoAsync(iduser);
+                    eventosAsociados = await this.service.GetEventosPorRecintoAsync(iduser);
                     break;
             }
 
@@ -70,14 +68,14 @@ namespace MvcCoreProyectoSejo.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string correo, string password)
+        public async Task<IActionResult> Login(Login login)
         {
-            string login = await this.service.Login(correo, password);
-            if (login != null)
+            string loginToken = await this.service.Login(login);
+            if (loginToken != null)
             {
                 // Validar el token JWT
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var token = tokenHandler.ReadToken(login) as JwtSecurityToken;
+                var token = tokenHandler.ReadToken(loginToken) as JwtSecurityToken;
 
                 if (token != null)
                 {
@@ -102,22 +100,22 @@ namespace MvcCoreProyectoSejo.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Registro(string nombre, string password, string confirmPassword, string correo)
+        public async Task<IActionResult> Registro(Registro registro)
         {
-            if (!string.IsNullOrEmpty(correo) && repo.EmailExists(correo))
+            if (!string.IsNullOrEmpty(registro.Correo) && await this.service.EmailExists(registro.Correo))
             {
                 ViewData["Mensaje"] = "El correo electrónico ya está en uso. Por favor, utiliza otro.";
                 return View();
             }
 
-            if (password != confirmPassword)
+            if (registro.Password != registro.ConfirmPassword)
             {
                 ViewData["Mensaje"] = "Las contraseñas no coinciden. Por favor, inténtalo de nuevo.";
                 return View();
             }
 
             // Llamar al método RegisterUserAsync con la contraseña tal como está
-            Usuario user = await repo.RegisterUserAsync(nombre, correo, password, 1);
+            Usuario user = await this.service.RegisterUserAsync(registro);
 
             // Verificar si el usuario se creó correctamente
             if (user != null)
@@ -131,7 +129,7 @@ namespace MvcCoreProyectoSejo.Controllers
                 mensaje += "<p>Debe activar su cuenta con nosotros pulsando el siguiente enlace</p>";
                 mensaje += "<p><a href='" + serverUrl + "'>" + serverUrl + "</a></p>";
                 mensaje += "<p>Muchas gracias</p>";
-                await this.helperMails.SendMailAsync(correo, "Registro Usuario", mensaje);
+                await this.helperMails.SendMailAsync(registro.Correo, "Registro Usuario", mensaje);
 
                 return RedirectToAction("Login");
             }
@@ -144,12 +142,12 @@ namespace MvcCoreProyectoSejo.Controllers
         }
 
 
-        public async Task<IActionResult> ActivateUser(string token)
-        {
-            await this.repo.ActivateUserAsync(token);
-            ViewData["MENSAJE"] = "Cuenta activada correctamente";
-            return RedirectToAction("Index", "Eventos");
-        }
+        //public async Task<IActionResult> ActivateUser(string token)
+        //{
+        //    await this.repo.ActivateUserAsync(token);
+        //    ViewData["MENSAJE"] = "Cuenta activada correctamente";
+        //    return RedirectToAction("Index", "Eventos");
+        //}
 
         public IActionResult Logout()
         {
@@ -157,14 +155,19 @@ namespace MvcCoreProyectoSejo.Controllers
             return RedirectToAction("Login");
         }
 
-        public async Task<IActionResult> Edit(int id)
+        //public async Task<IActionResult> Edit(int id)
+        //{
+        //    UsuarioDetalles usuarioDetalles = await this.repo.GetUsuarioDetalles(id);
+        //    if (usuarioDetalles == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(usuarioDetalles);
+        //}
+
+        public IActionResult ErrorAcceso()
         {
-            UsuarioDetalles usuarioDetalles = await this.repo.GetUsuarioDetalles(id);
-            if (usuarioDetalles == null)
-            {
-                return NotFound();
-            }
-            return View(usuarioDetalles);
+            return View();
         }
     }
 }

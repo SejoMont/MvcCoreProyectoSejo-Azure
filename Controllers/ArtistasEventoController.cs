@@ -2,32 +2,23 @@
 using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
-using MvcCoreProyectoSejo.Repository;
+using MvcCoreProyectoSejo.Services;
 
 namespace MvcCoreProyectoSejo.Controllers
 {
     public class ArtistasEventoController : Controller
     {
-        private ArtistasEventoRepository repo;
-        private EventosRepository eventosRepository;
-        private UsuariosRepository usuariosRepository;
-        private EventosContext context;
-        private HelperPathProvider helperPathProvider;
-        private UploadFilesController uploadFilesController;
+        private ServiceEventos service;
 
-        public ArtistasEventoController(ArtistasEventoRepository repo, EventosRepository eventosRepository, UsuariosRepository usuariosRepository, EventosContext context, HelperPathProvider helperPathProvider, UploadFilesController uploadFilesController)
+        public ArtistasEventoController(ServiceEventos service)
         {
-            this.repo = repo;
-            this.eventosRepository = eventosRepository;
-            this.usuariosRepository = usuariosRepository;
-            this.context = context;
-            this.helperPathProvider = helperPathProvider;
-            this.uploadFilesController = uploadFilesController;
+            this.service = service;
+
         }
         public async Task<IActionResult> _AddArtistaToEvento(int idevento)
         {
-            EventoDetalles evento = await this.eventosRepository.GetDetallesEventoAsync(idevento);
-            List<UsuarioDetalles> artistas = await this.usuariosRepository.GetAllArtistas();
+            EventoDetalles evento = await this.service.FindEventoAsync(idevento);
+            List<UsuarioDetalles> artistas = await this.service.GetAllArtistasAsync();
 
             ViewData["Evento"] = evento;
 
@@ -39,7 +30,7 @@ namespace MvcCoreProyectoSejo.Controllers
         {
             try
             {
-                await this.repo.AddArtistaToEvento(idevento, idartista);
+                await this.service.AddArtistaEventoAsync(idevento, idartista);
                 return RedirectToAction("Details", "Eventos", new { id = idevento });
             }
             catch (Exception ex)
@@ -49,27 +40,11 @@ namespace MvcCoreProyectoSejo.Controllers
             }
         }
 
-        public async Task<JsonResult> BuscarArtistas(string term)
-        {
-            var artistas = await this.context.ArtistasDetalles
-                                  .Where(a => a.NombreUsuario.Contains(term))
-                                  .Select(a => new { label = a.NombreUsuario, value = a.UsuarioID })
-                                  .ToListAsync();
-
-            return Json(artistas);
-        }
 
         [HttpPost]
-        public async Task<IActionResult> CrearArtista(Artista artista, IFormFile foto)
+        public async Task<IActionResult> CrearArtista(Artista artista)
         {
-            // Llamar al método SubirFichero del controlador UploadFilesController
-            await uploadFilesController.SubirFicheroUsuarios(foto);
-
-            artista.Foto = foto.FileName;
-
-            this.context.Artistas.Add(artista);
-            await this.context.SaveChangesAsync();
-
+            await this.service.CrearArtistaAsync(artista);
             return RedirectToAction("Details", "Eventos", new { id = artista.IdEvento });
         }
     }

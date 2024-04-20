@@ -42,7 +42,7 @@ namespace MvcCoreProyectoSejo.Services
         }
 
         #region Usuarios
-        public async Task<string> Login(string correo, string pass)
+        public async Task<string> Login(Login login)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -50,12 +50,6 @@ namespace MvcCoreProyectoSejo.Services
                 client.BaseAddress = new Uri(this.urlApiEventos);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.header);
-
-                Login login = new Login
-                {
-                    Correo = correo,
-                    Password = pass
-                };
 
                 string jsonData = JsonConvert.SerializeObject(login);
 
@@ -75,6 +69,46 @@ namespace MvcCoreProyectoSejo.Services
                 }
                 else
                 {
+                    return null;
+                }
+            }
+        }
+
+        public async Task<bool> EmailExists(string correo)
+        {
+            string request = "api/Usuarios/EmailExists?correo=" + correo;
+
+            bool emailExist = await this.CallApiSync<bool>(request);
+
+            return emailExist;
+        }
+
+        public async Task<Usuario> RegisterUserAsync(Registro registro)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string requestUri = "api/Usuarios/Registro";
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                string jsonData = JsonConvert.SerializeObject(registro);
+
+                StringContent content =
+                    new StringContent(jsonData, Encoding.UTF8,
+                    "application/json");
+
+                HttpResponseMessage response = await client.PostAsync(requestUri, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Usuario usuario = JsonConvert.DeserializeObject<Usuario>(responseContent);
+                    return usuario;
+                }
+                else
+                {
+                    // Considerar manejar diferentes tipos de errores o estados de respuesta aquí
                     return null;
                 }
             }
@@ -151,7 +185,25 @@ namespace MvcCoreProyectoSejo.Services
 
         public async Task<List<EventoDetalles>> GetAllEventosTipoAsync(string tipo)
         {
-            string request = "/api/Eventos/GetAllEventosTipo?tipo=" + tipo;
+            string request = "api/Eventos/GetAllEventosTipo?tipo=" + tipo;
+
+            List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
+
+            return eventos;
+        }
+
+        public async Task<List<EventoDetalles>> GetAllEventosArtistaAsync(int iduser)
+        {
+            string request = "api/Eventos/GetAllEventosArtista?iduser=" + iduser;
+
+            List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
+
+            return eventos;
+        }
+
+        public async Task<List<EventoDetalles>> GetEventosPorRecintoAsync(int iduser)
+        {
+            string request = "api/Eventos/GetEventosPorRecinto?iduser=" + iduser;
 
             List<EventoDetalles> eventos = await this.CallApiSync<List<EventoDetalles>>(request);
 
@@ -230,6 +282,64 @@ namespace MvcCoreProyectoSejo.Services
             List<ArtistaDetalles> artistas = await this.CallApiSync<List<ArtistaDetalles>>(request);
 
             return artistas;
+        }
+
+        public async Task<List<UsuarioDetalles>> GetAllArtistasAsync()
+        {
+            string request = "api/ArtistasEvento/GetAllArtistas";
+
+            List<UsuarioDetalles> artistas = await this.CallApiSync<List<UsuarioDetalles>>(request);
+
+            return artistas;
+        }
+
+        public async Task<bool> AddArtistaEventoAsync(int idevento, int idartista)
+        {
+            string request = "api/ArtistasEvento/AddArtistaToEvento/" + idevento + "/" + idartista;
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                HttpResponseMessage response = await client.PostAsync(request, null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> CrearArtistaAsync(Artista artista)
+        {
+            string request = "api/ArtistasEvento/CrearArtista";
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                string jsonData = JsonConvert.SerializeObject(artista);
+                StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync(request, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
         #endregion
 
@@ -321,6 +431,14 @@ namespace MvcCoreProyectoSejo.Services
             }
         }
 
+        public async Task<List<EntradaDetalles>> GetAllEntradasUsuarioAsync(int iduser)
+        {
+            string request = "api/Entradas/VerEntradas/" + iduser;
+
+            List<EntradaDetalles> entradas = await this.CallApiSync<List<EntradaDetalles>>(request);
+
+            return entradas;
+        }
         #endregion
     }
 }
