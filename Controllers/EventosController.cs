@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using ApiCoreProyectoEventos.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
 using MvcCoreProyectoSejo.Services;
@@ -159,5 +161,19 @@ public class EventosController : Controller
         return RedirectToAction("Details", new { id = eventoId });
     }
 
-
+    [Authorize]
+    [HttpPost("DeleteComentario")]
+    public async Task<IActionResult> DeleteComentario(int idcoment)
+    {
+        bool success = await this.service.DeleteComentarioAsync(idcoment);
+        if (success)
+        {
+            return RedirectToAction("Index");
+        }
+        else
+        {
+            ViewData["Error"] = "Error";
+            return RedirectToAction("Index");
+        }
+    }
 }

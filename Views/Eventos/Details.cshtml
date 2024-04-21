@@ -173,6 +173,13 @@
                             }
 
                         </div>
+                        @if (User.Identity.IsAuthenticated && User.FindFirst(ClaimTypes.NameIdentifier).Value == comentario.UsuarioID.ToString())
+                        {
+                            <br />
+                            <form method="post" action="@Url.Action("DeleteComentario", "Eventos", new { idcoment = comentario.ComentarioID })">
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        }
                     </div>
                 }
             </div>

@@ -13,10 +13,13 @@ namespace MvcCoreProyectoSejo.Models
 
         [Column("EventoID")]
         public int EventoID { get; set; }
+
         [Column("NombreEvento")]
         public string NombreEvento { get; set; }
+
         [Column("UsuarioID")]
         public int UsuarioID { get; set; }
+
         [Column("NombreUsuario")]
         public string NombreUsuario { get; set; }
 
@@ -36,5 +39,4 @@ namespace MvcCoreProyectoSejo.Models
         [ForeignKey("EventoID")]
         public Evento Evento { get; set; }
     }
-
 }

@@ -460,6 +460,30 @@ namespace MvcCoreProyectoSejo.Services
 
             return comentarios;
         }
+
+        public async Task<bool> DeleteComentarioAsync(int idComentario)
+        {
+            string requestUri = "api/Comentarios/DeleteComentario?idcoment=" + idComentario;
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                // Recuperar el token JWT de la sesión
+                string token = this.httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+
+                // Añadir el token JWT en el encabezado Authorization
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                HttpResponseMessage response = await client.DeleteAsync(requestUri);
+
+                return response.IsSuccessStatusCode;
+            }
+        }
         #endregion
 
         #region Entradas
