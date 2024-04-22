@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
@@ -46,6 +47,38 @@ namespace MvcCoreProyectoSejo.Controllers
         {
             await this.service.CrearArtistaAsync(artista);
             return RedirectToAction("Details", "Eventos", new { id = artista.IdEvento });
+        }
+
+        [Authorize]
+        [HttpPost("DeleteArtistaEvento")]
+        public async Task<IActionResult> DeleteArtistaEvento(int idevento, int idartista)
+        {
+            bool success = await this.service.DeleteArtistaEventoAsync(idevento, idartista);
+            if (success)
+            {
+                return RedirectToAction("Index", "Eventos");
+            }
+            else
+            {
+                ViewData["Error"] = "Error";
+                return RedirectToAction("Index", "Eventos");
+            }
+        }
+
+        [Authorize]
+        [HttpPost("DeleteArtistaTemp")]
+        public async Task<IActionResult> DeleteArtistaTemp(int idevento, int idartista)
+        {
+            bool success = await this.service.DeleteArtistaTempAsync(idevento, idartista);
+            if (success)
+            {
+                return RedirectToAction("Index", "Eventos");
+            }
+            else
+            {
+                ViewData["Error"] = "Error";
+                return RedirectToAction("Index", "Eventos");
+            }
         }
     }
 }

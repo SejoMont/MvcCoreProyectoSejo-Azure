@@ -157,14 +157,14 @@ namespace MvcCoreProyectoSejo.Controllers
             {
                 HttpContext.Session.SetObject("CurrentUser", user);
 
-                string serverUrl = this.helperPathProvider.MapUrlServerPath();
-                //https://localhost:8555/Usuarios/ActivateUser/TOKEN??? 
-                serverUrl = serverUrl + "/Usuarios/ActivateUser/?token=" + user.TokenMail;
-                string mensaje = "<h3>Usuario registrado</h3>";
-                mensaje += "<p>Debe activar su cuenta con nosotros pulsando el siguiente enlace</p>";
-                mensaje += "<p><a href='" + serverUrl + "'>" + serverUrl + "</a></p>";
-                mensaje += "<p>Muchas gracias</p>";
-                await this.helperMails.SendMailAsync(registro.Correo, "Registro Usuario", mensaje);
+                //string serverUrl = this.helperPathProvider.MapUrlServerPath();
+                ////https://localhost:8555/Usuarios/ActivateUser/TOKEN??? 
+                //serverUrl = serverUrl + "/Usuarios/ActivateUser/?token=" + user.TokenMail;
+                //string mensaje = "<h3>Usuario registrado</h3>";
+                //mensaje += "<p>Debe activar su cuenta con nosotros pulsando el siguiente enlace</p>";
+                //mensaje += "<p><a href='" + serverUrl + "'>" + serverUrl + "</a></p>";
+                //mensaje += "<p>Muchas gracias</p>";
+                //await this.helperMails.SendMailAsync(registro.Correo, "Registro Usuario", mensaje);
 
                 return RedirectToAction("Login");
             }
