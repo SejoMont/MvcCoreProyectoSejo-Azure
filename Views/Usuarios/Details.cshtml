@@ -10,13 +10,13 @@
     <div class="row">
         <div class="col-md-4">
             <div>
-                <img src="@HelperPathProvider.MapUrlPath(Model.FotoPerfil, Folders.Usuarios)" class="card-img-top img-fluid square-image" style="border-radius: 10px;">
+                <img src="https://storageaccounteventossmc.blob.core.windows.net/usuarios/@Model.FotoPerfil" class="card-img-top img-fluid square-image" style="border-radius: 10px;">
 
                 <div class="card-body">
                     <p class="card-text">@Model.Descripcion</p>
                 </div>
-                <ul class="list-group list-group-flush" style="background: none" >
-                    
+                <ul class="list-group list-group-flush" style="background: none">
+
                     @if (usuario != null)
                     {
                         if (usuario.UsuarioID == Model.UsuarioID)
@@ -42,7 +42,7 @@
                     <a href="@Url.Action("Details", "Eventos", new { id = evento.Id })" class="list-group-item list-group-item-action" style="background-color:#1C1C21; color:white; border-radius: 10px">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Imagen a la izquierda -->
-                            <img src="@HelperPathProvider.MapUrlPath(evento.Imagen, Folders.Eventos)" class="card-img-top" style="height:100px; object-fit: cover; width:100px; border-radius: 7px">
+                            <img src="https://storageaccounteventossmc.blob.core.windows.net/eventos/@evento.Imagen" class="card-img-top" style="height:100px; object-fit: cover; width:100px; border-radius: 7px">
                             <!-- Contenedor del contenido de texto -->
                             <div class="flex-grow-1 ml-3" style="margin-left: 20px">
                                 <h5 class="mb-1">@evento.NombreEvento</h5>
@@ -63,7 +63,7 @@
                     <a href="@Url.Action("Details", "Eventos", new { id = evento.Id })" class="list-group-item list-group-item-action" style="background-color:#1C1C21; color:white; border-radius: 10px">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Imagen a la izquierda -->
-                            <img src="@HelperPathProvider.MapUrlPath(evento.Imagen, Folders.Eventos)" class="card-img-top" style="height:100px; object-fit: cover; width:100px; border-radius: 7px">
+                            <img src="https://storageaccounteventossmc.blob.core.windows.net/eventos/@evento.Imagen" class="card-img-top" style="height:100px; object-fit: cover; width:100px; border-radius: 7px">
                             <!-- Contenedor del contenido de texto -->
                             <div class="flex-grow-1 ml-3" style="margin-left: 20px">
                                 <h5 class="mb-1">@evento.NombreEvento</h5>

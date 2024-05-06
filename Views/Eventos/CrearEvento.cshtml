@@ -65,12 +65,13 @@
 
                         @* Imagen *@
                         @* <div class="mb-3">
-                            <label class="form-label">Imagen:</label>
-                            <input name="Imagen" type="file" class="form-control" accept="image/*" required />
+                        <label class="form-label">Imagen:</label>
+                        <input name="Imagen" type="file" class="form-control" accept="image/*" required />
                         </div>  *@
                         <div class="mb-3">
                             <label class="form-label">Imagen:</label>
-                            <input name="Imagen" type="text" class="form-control" required />
+                            <input name="file" type="file" class="form-control" accept="image/*" required />
+                            <input name="Imagen" type="hidden" class="form-control" value="" />
                         </div>
 
                         @* Mayores de edad *@
@@ -87,7 +88,7 @@
 
                         @* Link de Maps *@
 
-                            <input name="LinkMapsProvincia" class="form-control" placeholder="Enlace de Google Maps de la ubicación" type="hidden" value="maps"/>
+                        <input name="LinkMapsProvincia" class="form-control" placeholder="Enlace de Google Maps de la ubicación" type="hidden" value="maps" />
 
                         @* Precio *@
                         <div class="mb-3">

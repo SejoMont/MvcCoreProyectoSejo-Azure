@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
@@ -22,6 +23,12 @@ builder.Services.AddAuthentication(options =>
 
 
 // Add services to the container.
+string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
+
+BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
+
+builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
+
 builder.Services.AddHttpContextAccessor();
 
 //Personalizamos nuestras rutas
@@ -41,6 +48,7 @@ builder.Services.AddTransient<HelperTools>();
 builder.Services.AddTransient<HelperPathProvider>();
 
 builder.Services.AddTransient<ServiceEventos>();
+builder.Services.AddTransient<ServiceStorageBlobs>();
 
 string connectionString = builder.Configuration.GetConnectionString("ApiEventos");
 builder.Services.AddDbContext<EventosContext>(options => options.UseSqlServer(connectionString));

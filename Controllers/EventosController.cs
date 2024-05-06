@@ -12,11 +12,12 @@ using MvcCoreProyectoSejo.Services;
 public class EventosController : Controller
 {
     private ServiceEventos service;
+    private ServiceStorageBlobs serviceStorageBlobs;
 
-    public EventosController(ServiceEventos service)
+    public EventosController(ServiceEventos service, ServiceStorageBlobs serviceStorageBlobs)
     {
-
         this.service = service;
+        this.serviceStorageBlobs = serviceStorageBlobs;
     }
 
     [HttpGet]
@@ -111,8 +112,18 @@ public class EventosController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CrearEvento(Evento evento)
+    public async Task<IActionResult> CrearEvento(Evento evento, IFormFile file)
     {
+
+        string blobName = file.FileName;
+
+        using (Stream stream = file.OpenReadStream())
+        {
+            await this.serviceStorageBlobs.UploadBlobAsync("eventos", blobName, stream);
+        }
+
+        evento.Imagen = blobName;
+
         Evento createdEvento = await service.CrearEventoAsync(evento);
         if (createdEvento != null)
         {
