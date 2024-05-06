@@ -413,6 +413,54 @@ namespace MvcCoreProyectoSejo.Services
                 }
             }
         }
+
+        public async Task<bool> DeleteArtistaEventoAsync(int idevento, int idartista)
+        {
+            string requestUri = "api/ArtistasEvento/DeleteArtistaEvento?idevento=" + idevento + "&idartista=" + idartista;
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                // Recuperar el token JWT de la sesión
+                string token = this.httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+
+                // Añadir el token JWT en el encabezado Authorization
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                HttpResponseMessage response = await client.DeleteAsync(requestUri);
+
+                return response.IsSuccessStatusCode;
+            }
+        }
+
+        public async Task<bool> DeleteArtistaTempAsync(int idevento, int idartista)
+        {
+            string requestUri = "api/ArtistasEvento/DeleteArtistaTemp?idevento=" + idevento + "&idartista=" + idartista;
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.urlApiEventos);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                // Recuperar el token JWT de la sesión
+                string token = this.httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+
+                // Añadir el token JWT en el encabezado Authorization
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                HttpResponseMessage response = await client.DeleteAsync(requestUri);
+
+                return response.IsSuccessStatusCode;
+            }
+        }
         #endregion
 
         #region Comentarios

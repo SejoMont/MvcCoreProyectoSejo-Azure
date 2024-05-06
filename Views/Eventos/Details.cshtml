@@ -75,27 +75,46 @@
                     <ul class="list-group">
                         @foreach (var artista in (List<ArtistaDetalles>)ViewData["ArtistasUsers"])
                         {
-                            <a asp-controller="Usuarios" asp-action="Details" asp-route-iduser="@artista.UsuarioID">
                             <li class="list-group-item" style="background: none; border: none">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Imagen del artista -->
                                         <img src="@HelperPathProvider.MapUrlPath(artista.FotoPerfil, Folders.Usuarios)" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
-                                        <span style="color: white; font-size: 20px" class="ml-3"> &nbsp;  @artista.NombreUsuario</span>
+
+                                        <!-- Nombre del artista y enlace a detalles -->
+                                        <a asp-controller="Usuarios" asp-action="Details" asp-route-iduser="@artista.UsuarioID" class="ml-3 text-white" style="text-decoration: none;">
+                                            <span style="color: white; font-size: 20px" class="ml-3"> &nbsp;  @artista.NombreUsuario</span>
+                                        </a>
                                     </div>
+
+                                    <!-- Formulario de eliminación solo visible si el usuario es el Recinto -->
+                                    @if (User.Identity.IsAuthenticated && User.FindFirst(ClaimTypes.NameIdentifier).Value == Model.RecintoId.ToString())
+                                    {
+                                        <form method="post" action="@Url.Action("DeleteArtistaEvento", "ArtistasEvento", new { idevento = Model.Id, idartista = artista.UsuarioID })" class="ml-auto">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    }
                                 </div>
                             </li>
-                            </a>
                         }
+
                         @foreach (var artista in (List<Artista>)ViewData["ArtistasEvento"])
                         {
                             <li class="list-group-item" style="background: none; border: none">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div>
+                                    <div class="d-flex align-items-center">
                                         <img src="@HelperPathProvider.MapUrlPath(artista.Foto, Folders.Usuarios)" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
                                         <span style="color: white; font-size: 20px" class="ml-3"> &nbsp;  @artista.Nombre</span>
                                     </div>
+                                    @if (User.Identity.IsAuthenticated && User.FindFirst(ClaimTypes.NameIdentifier).Value == Model.RecintoId.ToString())
+                                    {
+                                        <form method="post" action="@Url.Action("DeleteArtistaTemp", "ArtistasEvento", new { idevento = Model.Id, idartista = artista.IdArtista })" class="ml-3">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    }
                                 </div>
                             </li>
+
                         }
                     </ul>
                 }
