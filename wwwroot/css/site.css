@@ -9,6 +9,14 @@ html {
     background-color: rgba(0, 0, 0, 0.7); /* Ajusta el último valor para cambiar la opacidad */
 }
 
+.blanco-y-negro {
+    filter: grayscale(100%);
+}
+
+.blanco-y-negro:hover{
+    filter: grayscale(100%);
+}
+
 /*.navbar .container-fluid {
     display: flex;
     justify-content: space-between;

@@ -4,8 +4,23 @@ using Microsoft.EntityFrameworkCore;
 using MvcCoreProyectoSejo.Helpers;
 using MvcCoreProyectoSejo.Models;
 using MvcCoreProyectoSejo.Services;
+using Azure.Security.KeyVault.Secrets;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAzureClients(factory =>
+{
+    factory.AddSecretClient
+    (builder.Configuration.GetSection("KeyVault"));
+});
+
+SecretClient secretClient = builder.Services.BuildServiceProvider().GetService<SecretClient>();
+
+KeyVaultSecret storageaccountSecret = await secretClient.GetSecretAsync("storageaccount");
+
+string storageaccount = storageaccountSecret.Value;
+
 //Habilitamos session dentro de nuestro servidor
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
@@ -23,9 +38,7 @@ builder.Services.AddAuthentication(options =>
 
 
 // Add services to the container.
-string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
-
-BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
+BlobServiceClient blobServiceClient = new BlobServiceClient(storageaccount);
 
 builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 

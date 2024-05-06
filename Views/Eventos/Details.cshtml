@@ -79,7 +79,7 @@
                                 <div class="d-flex justify-content-between align-items-center w-100">
                                     <div class="d-flex align-items-center">
                                         <!-- Imagen del artista -->
-                                        <img src="@HelperPathProvider.MapUrlPath(artista.FotoPerfil, Folders.Usuarios)" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
+                                        <img src="https://storageaccounteventossmc.blob.core.windows.net/usuarios/@artista.FotoPerfil" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
 
                                         <!-- Nombre del artista y enlace a detalles -->
                                         <a asp-controller="Usuarios" asp-action="Details" asp-route-iduser="@artista.UsuarioID" class="ml-3 text-white" style="text-decoration: none;">
@@ -103,7 +103,7 @@
                             <li class="list-group-item" style="background: none; border: none">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
-                                        <img src="@HelperPathProvider.MapUrlPath(artista.Foto, Folders.Usuarios)" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
+                                        <img src="https://storageaccounteventossmc.blob.core.windows.net/usuarios/@artista.Foto" style="width:40px; height: 40px" class="rounded-circle artist-img" alt="Foto del Artista" />
                                         <span style="color: white; font-size: 20px" class="ml-3"> &nbsp;  @artista.Nombre</span>
                                     </div>
                                     @if (User.Identity.IsAuthenticated && User.FindFirst(ClaimTypes.NameIdentifier).Value == Model.RecintoId.ToString())

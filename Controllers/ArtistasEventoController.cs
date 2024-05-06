@@ -10,11 +10,12 @@ namespace MvcCoreProyectoSejo.Controllers
     public class ArtistasEventoController : Controller
     {
         private ServiceEventos service;
+        private ServiceStorageBlobs serviceStorageBlobs;
 
-        public ArtistasEventoController(ServiceEventos service)
+        public ArtistasEventoController(ServiceEventos service, ServiceStorageBlobs serviceStorageBlobs)
         {
             this.service = service;
-
+            this.serviceStorageBlobs = serviceStorageBlobs;
         }
         public async Task<IActionResult> _AddArtistaToEvento(int idevento)
         {
@@ -43,8 +44,17 @@ namespace MvcCoreProyectoSejo.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CrearArtista(Artista artista)
+        public async Task<IActionResult> CrearArtista(Artista artista, IFormFile file)
         {
+            string blobName = file.FileName;
+
+            using (Stream stream = file.OpenReadStream())
+            {
+                await this.serviceStorageBlobs.UploadBlobAsync("usuarios", blobName, stream);
+            }
+
+            artista.Foto = blobName;
+
             await this.service.CrearArtistaAsync(artista);
             return RedirectToAction("Details", "Eventos", new { id = artista.IdEvento });
         }
@@ -56,12 +66,12 @@ namespace MvcCoreProyectoSejo.Controllers
             bool success = await this.service.DeleteArtistaEventoAsync(idevento, idartista);
             if (success)
             {
-                return RedirectToAction("Index", "Eventos");
+                return RedirectToAction("Details", "Eventos", new { id = idevento });
             }
             else
             {
                 ViewData["Error"] = "Error";
-                return RedirectToAction("Index", "Eventos");
+                return RedirectToAction("Details", "Eventos", new { id = idevento });
             }
         }
 
@@ -72,12 +82,12 @@ namespace MvcCoreProyectoSejo.Controllers
             bool success = await this.service.DeleteArtistaTempAsync(idevento, idartista);
             if (success)
             {
-                return RedirectToAction("Index", "Eventos");
+                return RedirectToAction("Details", "Eventos", new { id = idevento });
             }
             else
             {
                 ViewData["Error"] = "Error";
-                return RedirectToAction("Index", "Eventos");
+                return RedirectToAction("Details", "Eventos", new { id = idevento });
             }
         }
     }

@@ -64,11 +64,20 @@ namespace MvcCoreProyectoSejo.Services
             await containerClient.DeleteBlobAsync(blobName);
         }
 
-        //METODO PARA SUBIR UN BLOB A UN CONTAINER 
+        // METODO PARA SUBIR UN BLOB A UN CONTAINER 
         public async Task UploadBlobAsync(string containerName, string blobName, Stream stream)
         {
             BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
-            await containerClient.UploadBlobAsync(blobName, stream);
+
+            // Verifica si el blob ya existe en el contenedor
+            BlobClient blobClient = containerClient.GetBlobClient(blobName);
+            if (!await blobClient.ExistsAsync())
+            {
+                // Si el blob no existe, cárgalo en el contenedor
+                await containerClient.UploadBlobAsync(blobName, stream);
+            }
+            // Si el blob ya existe, no hagas nada
         }
+
     }
 }

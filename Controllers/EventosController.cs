@@ -26,7 +26,22 @@ public class EventosController : Controller
         // Cantidad de eventos por página
         int pageSize = 8;
 
-        List<EventoDetalles> eventos = await this.service.GetEventosAsync();
+        List<EventoDetalles> eventos = new List<EventoDetalles>(); // Inicializar una lista vacía
+
+        if (filtro == null || !filtro.TieneFiltros())
+        {
+            eventos = (await this.service.GetEventosAsync()).Where(e => e.Fecha.Date >= DateTime.Today).ToList();
+        }
+        else
+        {
+            eventos = await this.service.GetEventosPorFiltrosAsync(filtro);
+        }
+
+        eventos = eventos.OrderBy(e => e.Fecha).ToList();
+
+        // Paginar la lista de eventos
+        var model = eventos.Skip((page - 1) * pageSize).Take(pageSize);
+
         List<TipoEvento> tipoEventos = await this.service.GetTipoEventosAsync();
         List<Provincia> provincias = await this.service.GetProvinciasAsync();
 
@@ -35,18 +50,6 @@ public class EventosController : Controller
             UsuarioDetalles user = await this.service.GetUsuarioDetallesAsync(iduser ?? 0);
             ViewData["UsuarioDetalle"] = user;
         }
-
-        if (filtro != null && filtro.TieneFiltros())
-        {
-            eventos = await this.service.GetEventosPorFiltrosAsync(filtro);
-        }
-        else
-        {
-            eventos = await this.service.GetEventosAsync();
-        }
-
-        // Paginar la lista de eventos
-        var model = eventos.Skip((page - 1) * pageSize).Take(pageSize);
 
         ViewData["TipoEventos"] = tipoEventos;
         ViewData["Provincias"] = provincias;
@@ -60,14 +63,14 @@ public class EventosController : Controller
         if (filtro != null)
         {
             var queryParameters = new Dictionary<string, string>
-            {
-                { "nombre", filtro.Nombre },
-                { "fechaInicio", filtro.FechaInicio.HasValue ? filtro.FechaInicio.Value.ToString("yyyy-MM-dd") : "" },
-                { "provincia", filtro.Provincia },
-                { "tipo", filtro.Tipo },
-                { "precioMayorQue", filtro.PrecioMayorQue.HasValue ? filtro.PrecioMayorQue.Value.ToString() : "" },
-                { "precioMenorQue", filtro.PrecioMenorQue.HasValue ? filtro.PrecioMenorQue.Value.ToString() : "" }
-            };
+        {
+            { "nombre", filtro.Nombre },
+            { "fechaInicio", filtro.FechaInicio.HasValue ? filtro.FechaInicio.Value.ToString("yyyy-MM-dd") : "" },
+            { "provincia", filtro.Provincia },
+            { "tipo", filtro.Tipo },
+            { "precioMayorQue", filtro.PrecioMayorQue.HasValue ? filtro.PrecioMayorQue.Value.ToString() : "" },
+            { "precioMenorQue", filtro.PrecioMenorQue.HasValue ? filtro.PrecioMenorQue.Value.ToString() : "" }
+        };
             filtersQueryString = QueryHelpers.AddQueryString("", queryParameters);
         }
 
@@ -76,6 +79,7 @@ public class EventosController : Controller
 
         return View(model);
     }
+
 
     public async Task<IActionResult> TipoEvento(string tipo)
     {

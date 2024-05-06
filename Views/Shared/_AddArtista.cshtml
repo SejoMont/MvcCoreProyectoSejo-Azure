@@ -10,8 +10,8 @@
 
     <div class="mb-3">
         <label for="foto" class="form-label">Foto del Artista</label>
-        @* <input type="file" id="foto" asp-for="Foto" class="form-control" accept="image/*" required /> *@
-        <input type="text" id="foto" asp-for="Foto" class="form-control" required />
+        <input type="file" id="foto" name="file" class="form-control" accept="image/*" required />
+        <input type="hidden" id="foto" asp-for="Foto" class="form-control" required />
     </div>
 
     <button type="submit" class="btn btn-primary">Añadir Artista</button>
